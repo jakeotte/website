@@ -89,8 +89,11 @@ function cardMouseLeave(e) {
   const canvas = document.getElementById('bg-canvas');
   if (!canvas) return;
   
-  // Only show intro animation on index.html and if not seen before
-  const isIndexPage = window.location.pathname === '/' || window.location.pathname.endsWith('index.html');
+  // Determine if this is the site's index page. We treat any path that ends
+  // with a slash (site root like '/website/') or ends with '/index.html' as
+  // the index so this works when the site is served from a subpath.
+  const p = window.location.pathname || '/';
+  const isIndexPage = p.endsWith('/') || p.endsWith('/index.html');
   // Always play the intro on the index page (play on every full page load)
   
   // If not index page, just hide the overlay immediately
