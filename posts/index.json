@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Please, Please, Please Stop Getting NTLM Relayed",
+    "file": "2025-06-11-Please, Please, Please Stop Getting NTLM Relayed.md",
+    "date": "2025-06-11",
+    "summary": "Understanding NTLM relay attacks and how to properly secure your network against them across various protocols."
+  },
+  {
+    "title": "Extending Wazuh with Sysmon and LDAP",
+    "file": "2025-04-25-Extending Wazuh with Sysmon and LDAP.md", 
+    "date": "2025-04-25",
+    "summary": "How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging."
+  },
+  {
+    "title": "AMSI Bypasses and PowerShell Obfuscation",
+    "file": "2024-06-17-AMSI Bypasses and PowerShell Obfuscation.md",
+    "date": "2024-06-17", 
+    "summary": "Understanding AMSI's role in script detection and techniques for bypassing it through PowerShell obfuscation."
+  },
+  {
+    "title": "Bookmarklets as XSS Attack Vectors",
+    "file": "2024-06-09-Bookmarklets as XSS Attack Vectors.md",
+    "date": "2024-06-09",
+    "summary": "Analysis of a real-world attack using browser bookmarklets to bypass CORS protections and steal Roblox account credentials."
+  },
+  {
+    "title": "Evading Windows Defender Static Analysis",
+    "file": "2024-04-05-Evading Windows Defender Static Analysis.md",
+    "date": "2024-04-05",
+    "summary": "Techniques for bypassing Windows Defender's static analysis through AES encryption and custom shellcode runners."
+  },
+  {
+    "title": "HackTheBox - WifineticTwo Writeup",
+    "file": "2024-03-19-HackTheBox - WifineticTwo Writeup.md",
+    "date": "2024-03-19",
+    "summary": "Detailed walkthrough of the WifineticTwo box on HackTheBox, covering OpenPLC exploitation and wireless network attacks."
+  },
+  {
+    "title": "Finding Candidate Points with Regex",
+    "file": "2024-03-11-Finding Candidate Points with Regex.md",
+    "date": "2024-03-11",
+    "summary": "Using regular expressions to identify potential vulnerability points during white-box penetration testing."
+  },
+  {
+    "title": "How I Passed the OSCP",
+    "file": "2024-03-07-How I Passed the OSCP.md",
+    "date": "2024-03-07",
+    "summary": "A personal journey from zero cybersecurity experience to passing the OSCP certification exam."
+  }
+]
