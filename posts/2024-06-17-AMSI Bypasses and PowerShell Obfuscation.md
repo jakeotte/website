@@ -10,7 +10,7 @@ In simple terms, AMSI works by importing a DLL (`amsi.dll`) into any `cmd` or `p
 the machine's antivirus solution (often Windows Defender) and thoroughly inspected for signatures of malware. This creates a bridge between scripts executed in-memory and the antivirus platform installed on the
 machine. 
 
-![PowerShell modules list](/assets/img/amsi/powershell.png)
+![PowerShell modules list](assets/img/amsi/powershell.png)
 *PowerShell modules showing AMSI integration*
 
 # Breaking AMSI
@@ -26,12 +26,12 @@ practically using and altering existing bypasses.
 
 Attempting to load any malicious script in a standard security configuration will likely result in this familiar message:
 
-![Blocked](/assets/img/amsi/blocked.png)
+![Blocked](assets/img/amsi/blocked.png)
 
 It would seem that AMSI has detected something in our script that appears malicious. In order to break AMSI, we can use any number of [existing bypasses](https://github.com/S3cur3Th1sSh1t/Amsi-Bypass-Powershell). If
 we are lucky, an existing bypass will not be detected by Defender and we may corrupt the AMSI module in our process. Afterwards, we may execute any malicious script we want:
 
-![Bypass](/assets/img/amsi/bypass.png)
+![Bypass](assets/img/amsi/bypass.png)
 
 # Modifying Bypasses with AMSITrigger
 
@@ -41,13 +41,13 @@ such won't be able to free your process from the loaded DLL. In these cases, we 
 AMSITrigger works by breaking your script or code block down into chunks before 'feeding' them to AMSI via temporary files. If AMSI triggers an alert on a temporary file, we know that a problem exists within a 
 certain block of the code:
 
-![AMSITrigger](/assets/img/amsi/amsitrigger.png)
+![AMSITrigger](assets/img/amsi/amsitrigger.png)
 
 In the above example, it appears that AMSI likely triggers on the string "VirtualProtect" or "WriteProcessMemory" - notorious Win32 API functions used for process memory manipulation. However, there is no way to say
 for sure which string we need to alter. I recommend substituting strings you may suspect as being triggers with a placeholder in order to see what you will need to obfuscate. After messing around with the triggered
 code block, I found that `WriteProcessMemory` was causing problems, as can be seen from my clever substitution with `AAAAAAAAAAAAAAAAAA`:
 
-![AMSITrigger2](/assets/img/amsi/amsitrigger2.png)
+![AMSITrigger2](assets/img/amsi/amsitrigger2.png)
 
 Now we will need to obfuscate the `WriteProcessMemory` string.
 
@@ -55,16 +55,16 @@ Now we will need to obfuscate the `WriteProcessMemory` string.
 
 There's a lot of ways to hide strings in PowerShell. We can base-64 encode them:
 
-![base64](/assets/img/amsi/base64.png)
+![base64](assets/img/amsi/base64.png)
 
 Reverse them:
 
-![reverse](/assets/img/amsi/reverse.png)
+![reverse](assets/img/amsi/reverse.png)
 
 Or any other number of techniques. As good as those are, they probably aren't going to cut it in the big leagues of Windows Defender. Enter the classic tool [Invoke-Obfuscation](https://github.com/danielbohannon/Invoke-Obfuscation).
 We can use this popular obfuscation tool to customize our AMSI bypass. Let's try obfuscating the expression `$win = "WriteProcessMemory"`:
 
-![Invoke-Obfuscation](/assets/img/amsi/invokeobfuscate.png)
+![Invoke-Obfuscation](assets/img/amsi/invokeobfuscate.png)
 
 Great! We can now update our code block with the expression:
 
@@ -99,7 +99,7 @@ $code = $code + @"
 
 And check with AMSITrigger once more:
 
-![win](/assets/img/amsi/win.png)
+![win](assets/img/amsi/win.png)
 
 Success! We have generated a custom obfuscated AMSI bypass. We can now load this bypass script into memory before executing malicious scripts without any issue.
 

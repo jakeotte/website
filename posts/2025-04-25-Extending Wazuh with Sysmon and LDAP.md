@@ -1,6 +1,6 @@
 # Extending Wazuh with Sysmon and LDAP
 
-![Wazuh Dashboard](/assets/img/wazuh.jpg)
+![Wazuh Dashboard](assets/img/wazuh.jpg)
 *Wazuh SIEM Dashboard*
 
 ## Wazuh
@@ -90,7 +90,7 @@ HKLM:\SYSTEM\CurrentControlSet\Services\NTDS\Parameters -> Search Time Threshold
 Enabling these registry changes will allow for the logging of Event ID 1644 under the Directory Service event channel. Event 1644 isn't really supposed to be used just for logging queries - it is meant to log queries that are overly expensive
 and may be slowing down AD processing times. However, we can force the event to trigger for ALL LDAP queries by lowering the thresholds of each metric to the minimum (1). After changing the registry values, you should start to see 1644s flow in.
 
-![1644](/assets/img/1644.gif)
+![1644](assets/img/1644.gif)
 
 ## LDAP and Wazuh
 

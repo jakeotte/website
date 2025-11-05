@@ -1,6 +1,6 @@
 # How I Passed the OSCP
 
-![OSCP Certificate](/assets/img/cert.png)
+![OSCP Certificate](assets/img/cert.png)
 *My Certificate*
 
 ## Introduction

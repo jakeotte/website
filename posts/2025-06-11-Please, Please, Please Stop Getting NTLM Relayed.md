@@ -14,7 +14,7 @@ As a sysadmin securing your environment, all you need to know is that attackers 
 
 For example, say Bob from accounting attempts to access the file share hosted on the server `FILES-01`. An attacker on your network can say "Hey, I am `FILES-01`! Authenticate to me." to intercept Bob's authentication. The attacker can then forward Bob's authentication attempt to your server `DC-01` to interact with the Domain Controller, access sensitive information, and do a variety of other actions.
 
-![relay](/assets/img/ntlm/relay.png)
+![relay](assets/img/ntlm/relay.png)
 
 Let's take a look at the various protocols attackers can forward authentication to, what the potential impacts are, and how to fix each one in your environment.
 
@@ -32,11 +32,11 @@ However, if Bob from accounting is a Domain Admin or otherwise has Administrator
 
 Unauthenticated access to network file shares and SYSTEM level shells are never good. Luckily, SMB signing can be easily enabled and enforced via GPO under `Computer Configuration\Windows Settings\Security Settings\Local Policies\Security Options --> Microsoft network client/server: Digitally sign communications (always)`. Set the value to `Enabled` and push the GPO update.
 
-![smb_gpo](/assets/img/ntlm/smb_gpo.png)
+![smb_gpo](assets/img/ntlm/smb_gpo.png)
 
 You can verify that SMB signing is required as both a client and server on any system with the commandlets `Get-SmbClientConfiguration | FL RequireSecuritySignature` and `Get-SmbServerConfiguration | FL RequireSecuritySignature`.
 
-![smb_pshell](/assets/img/ntlm/smb_pshell.png)
+![smb_pshell](assets/img/ntlm/smb_pshell.png)
 
 See [Microsoft's article](https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-signing?tabs=group-policy) for more details.
 
@@ -56,13 +56,13 @@ Fortunately (or perhaps unfortunately), this attack is so brutal that Microsoft 
 
 Microsoft recommends enabling Extended Protection for Authentication (EPA) on IIS servers hosting Certificate Services. EPA relies on TLS, meaning you will need to disable HTTP entirely to use this feature. It's available in the IIS management panel, under the `CertSrv` site's `Authentication` menu:
 
-![adcs_epa](/assets/img/ntlm/adcs_epa.png)
+![adcs_epa](assets/img/ntlm/adcs_epa.png)
 
 HTTPS can be required for the IIS server under the `SSL Settings` menu.
 
 However, it is not uncommon for legacy environments to rely on HTTP. The additional mitigation provided by Microsoft is what I recommend - remove NTLM as an authentication provider entirely and replace it with `Negotiate:Kerberos`. Replacing NTLM will force your Certificate Authority's web server to rely on Kerberos, a more secure authentication protocol that is significantly harder to conduct relay attacks against. The list of authentication providers can be viewed and edited from the IIS manager under the `Providers...` right-click menu. Please make sure to update both the `CertSrv` and `[YOUR CA NAME HERE]-CA_CES_Kerberos` IIS sites!
 
-![adcs_auth](/assets/img/ntlm/adcs_auth.png)
+![adcs_auth](assets/img/ntlm/adcs_auth.png)
 
 Note that replacing NTLM with just `Negotiate` is not enough! `Negotiate` will fall back to NTLM in certain situations; `Negotiate:Kerberos` will only ever use Kerberos after negotiation.
 
@@ -80,7 +80,7 @@ Relayed computer accounts allow for a unique attack called Resource-Based Constr
 
 Microsoft has released GPO options to enforce message signing for LDAP connections and channel binding for LDAPS connections. These can be found under the `Default Domain Controllers Policy` at `Computer Configuration\Windows Settings\Security Settings\Local Policies\Security Options`, with settings `Domain controller: LDAP server signing requirements` and `Domain controller: LDAP server channel binding token requirements`.
 
-![adcs_auth](/assets/img/ntlm/adcs_auth.png)
+![adcs_auth](assets/img/ntlm/adcs_auth.png)
 
 ## Step 3: MSSQL
 
@@ -96,9 +96,9 @@ I can speak from experience - many organizations may have SMB/LDAP signing enabl
 
 Luckily, the MSSQL protocol supports Extended Protection for Authentication (EPA) which can be enabled through the SQL Server Configuration Manager window. Recall that EPA requires TLS encryption of the communication channel - we'll need to require both `Force Encryption` and `Extended Protection` for each SQL server:
 
-![sql_1](/assets/img/ntlm/sql_1.png)
+![sql_1](assets/img/ntlm/sql_1.png)
 
-![sql_2](/assets/img/ntlm/sql_2.png)
+![sql_2](assets/img/ntlm/sql_2.png)
 
 __Credit to subat0mik for these screenshots.__
 
@@ -106,4 +106,4 @@ __Credit to subat0mik for these screenshots.__
 
 I developed a simple script to rapidly identify relaying targets in client environments called [Tango](https://github.com/jakeotte/tango). Provided a nameserver (often a Domain Controller), subnet range(s), and domain name, the script will search for LDAP/LDAPS signing failures, potential ADCS relay targets, and any available MSSQL servers. I have saved a huge amount of time on internal tests with it thus far - give it a try and see what holes need to be patched in your environment!
 
-![tango](/assets/img/ntlm/tango.png)
+![tango](assets/img/ntlm/tango.png)

@@ -91,9 +91,7 @@ function cardMouseLeave(e) {
   
   // Only show intro animation on index.html and if not seen before
   const isIndexPage = window.location.pathname === '/' || window.location.pathname.endsWith('index.html');
-  // Use sessionStorage so the intro runs once per tab/window session
-  // (sessionStorage is cleared when the browsing context is closed)
-  const hasSeenIntro = sessionStorage.getItem('hasSeenIntro') === 'true';
+  // Always play the intro on the index page (play on every full page load)
   
   // If not index page, just hide the overlay immediately
   if (!isIndexPage) {
@@ -360,14 +358,12 @@ function cardMouseLeave(e) {
   const overlay = document.getElementById('intro-overlay');
   if (overlay) overlay.style.opacity = '1';
 
-  // Only show skull animation on index page and first visit
-  if (isIndexPage && !hasSeenIntro) {
+  // Only show skull animation on index page (play every load)
+  if (isIndexPage) {
     // small timeout so canvas has correct size and everything settled
     const explodeDelay = 120;
     setTimeout(() => {
       explodeSkull();
-      // Mark that we've shown the intro for this tab session
-      sessionStorage.setItem('hasSeenIntro', 'true');
     }, explodeDelay);
 
     // cleanup after overlay fades

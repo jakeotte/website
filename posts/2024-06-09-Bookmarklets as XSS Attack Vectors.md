@@ -91,7 +91,7 @@ const evil_email = parseBinary(_0x5dd11c.description);
 
 That's interesting. Why is `parseBinary` in use? Does the Roblox API really support some kind of raw binary serialization of user data? I visited badmilky22's user page and realized something else was up. The adversary was inserting binary-encoded data directly into their user's biography: 
 
-![Roblox User Profile](/assets/img/badmilky22.png)
+![Roblox User Profile](assets/img/badmilky22.png)
 *Malicious Roblox profile with encoded data*
 
 Decoding the description to ASCII gives us the email address `lr46opcs@fastsearcher.com`. Later on in the payload, this email address is used when victim account details are hijacked. The adversary likely uses badmilky22's account as a C2 node to update where stolen credentials are sent to.

@@ -228,5 +228,5 @@ Now we just decrypt the buffer and run new thread, and Defender doesn't have a c
 }
 
 ```
-![Windows Defender Bypassed](/assets/img/static.gif)
+![Windows Defender Bypassed](assets/img/static.gif)
 *Successfully bypassing Windows Defender static analysis*
