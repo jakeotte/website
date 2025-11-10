@@ -20,7 +20,6 @@ body {
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
 }
-
 /* Full-page canvas for particles */
 #bg-canvas {
   position: fixed;
@@ -32,7 +31,7 @@ body {
   z-index: 0;
 }
 
-/* Intro overlay (black screen that fades away) */
+
 #intro-overlay {
   position: fixed;
   inset: 0;
@@ -201,6 +200,32 @@ header > .header-top {
   letter-spacing: -0.02em;
   font-weight: 600;
 }
+
+/* Typewriter cursor for hero name */
+#hero-name { display: inline-block; }
+#hero-name::after {
+  content: " ";
+  display: inline-block;
+  width: 10px;
+  height: 1.2em;
+  background: var(--text-primary);
+  margin-left: 6px;
+  vertical-align: middle;
+  opacity: 1;
+  transition: opacity 0.12s linear;
+}
+
+/* When done typing we switch to a blink animation */
+.hero-cursor-blink::after {
+  animation: blink 1s steps(2,start) infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1 }
+  50% { opacity: 0 }
+  100% { opacity: 1 }
+}
+
 
 .title-sub {
   display: block;
