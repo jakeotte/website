@@ -217,7 +217,7 @@ header > .header-top {
 
 /* When done typing we switch to a blink animation */
 .hero-cursor-blink::after {
-  animation: blink 1s steps(2,start) infinite;
+  animation: blink 0.8s steps(1,start) infinite;
 }
 
 @keyframes blink {
