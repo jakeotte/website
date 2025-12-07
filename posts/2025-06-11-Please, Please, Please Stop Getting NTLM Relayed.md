@@ -1,5 +1,3 @@
-# Please, Please, Please Stop Getting NTLM Relayed
-
 ## Your Front Door is Open
 
 You're a seasoned sysadmin. You've been contracted to setup domain infrastructure for a SME - file servers, databases, domain controllers, the whole thing. Office 365 accounts are created, Azure VMs are deployed, firewalls installed and you're off to the races. You know a thing or two - you've setup Active Directory Certificate Services and distributed custom SSL certs for internal applications. Service accounts are protected with long, complex passwords stored in a password manager. Even RBAC is setup correctly and everyone's permissions are locked down!

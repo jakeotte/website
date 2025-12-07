@@ -1,5 +1,3 @@
-# The Great Bookmarklet Heist
-
 If you're in the threat intelligence space, you've probably seen headlines about $1 billion dollar crypto heists pulled off by Lazarus group in North Korea. You've seen multi-million dollar deals being made for decrypting ransomware and infostealers with nine figures in estimated damages. What you probably haven't seen is the cyber battlefield of children's online gaming - particularly a game called Roblox.
 
 ## The Target

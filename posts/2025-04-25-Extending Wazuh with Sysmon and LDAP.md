@@ -1,5 +1,3 @@
-# Extending Wazuh with Sysmon and LDAP
-
 ![Wazuh Dashboard](assets/img/wazuh.jpg)
 *Wazuh SIEM Dashboard*
 

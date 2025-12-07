@@ -1,5 +1,3 @@
-# AMSI Bypasses and PowerShell Obfuscation
-
 # Introduction to AMSI
 
 AMSI, or Anti Malware Scanning Interface, is what Windows uses to detect malware contained in scripts. Scripts may be downloaded remotely and executed only from memory, thereby never touching disk. Windows Defender
