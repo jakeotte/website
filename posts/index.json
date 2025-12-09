@@ -1,9 +1,15 @@
 [
   {
-    "title": "Who Needs Implants? A User’s Guide to Splashtop C2",
+    "title": "No More Implants: User’s Guide to Splashtop C2",
     "file": "2025-12-08-Who Needs Implants - A User's Guide to Splashtop C2.md",
     "date": "2025-12-08",
     "summary": "Exploring why simple, legitimate remote-access tools like Splashtop often outperform custom implants in real red team operations and adversary emulation."
+  },  
+  {
+    "title": "Password Spraying ManageEngine and Other RSA-protected Logins",
+    "file": "2025-11-15-Password Spraying ManageEngine.md",
+    "date": "2025-11-015",
+    "summary": "How to password spray RSA-encrypted login portals through JavaScript function hooking and Python scripts."
   },
   {
     "title": "Please, Please, Please Stop Getting NTLM Relayed",

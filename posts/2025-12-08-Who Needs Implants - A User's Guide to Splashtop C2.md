@@ -5,7 +5,7 @@ Recently I took some time to look at the other side of the offensive spectrum—
 > ![Splashtop monitoring](../assets/img/splashtop/lazarus.png)
 > *AnyDesk RMM in use by real Lazarus group operators.*
 
-From an operational standpoint, this isn't surprising. Signed binaries with massive enterprise footprints are inherently low-risk from a detection perspective; quarantining or killing a remote-access tool can break helpdesk workflows, disrupt production systems, or take critical endpoints offline. EDR engines and junior SOC analysts alike tend to tread carefully around software the organization depends on.
+From an operational standpoint, this isn't surprising. Signed binaries with massive enterprise footprints are inherently low-risk from a detection perspective; quarantining or killing a remote-access tool can halt helpdesk work, disrupt production systems, or take critical endpoints offline. EDR engines and junior SOC analysts alike tend to tread carefully around software the organization depends on.
 
 The real drawback for adversaries and red team operators has traditionally been control. Yes - legitimate RMM software will often bypass EDR by default, but drop it on the wrong workstation or launch a session at the wrong time and you won't be bypassing the SOC lead watching your moves in real time. Many RMM tools are also limited, clunky, or missing features operators want from a C2.
 
@@ -32,7 +32,7 @@ exploitation and management of "beacons" than it's counterpart through a number 
 
 ## The Usual Features
 
-Like most remote-access platforms, Splashtop exposes a familiar set of capabilities: full GUI streaming, clipboard integration, screen control, and a built-in chat interface (I guess if you want to just ask the victim for their password). None of this is remarkable on its own - nearly every RMM solution on the market offers similar functionality.
+Like most remote-access platforms, Splashtop exposes a typical set of capabilities: full GUI streaming, clipboard sync, screen control, and a built-in chat interface (I guess if you want to just ask the victim for their password). None of this is remarkable on its own - nearly every RMM solution on the market offers similar functionality.
 
 > ![Splashtop monitoring](../assets/img/splashtop/chat.png)
 > *Clever social engineering tricks performed by elite nation-state operators.*
@@ -44,11 +44,9 @@ From a red team op standpoint, the screen control feature is not ideal. Access d
 
 Beyond this, Splashtop offers an extremely simple and streamlined onboarding process through a signed EXE binary. It won't get much better than that for intial execution.
 
-## The Best Feature: Passive Awareness & Timing
+## The Best Feature: Passive Awareness
 
-This is the capability that stood out most during my testing.
-
-Splashtop provides persistent, always-on background visibility into enrolled devices **without initiating a session or interacting with the endpoint in any way**. From the management console, you can see:
+Here's the good part - Splashtop provides persistent, always-on background visibility into enrolled devices **without initiating a session or interacting with the endpoint in any way**. From the management console, you can see:
 
 - **whether the machine is currently logged in**  
 - which user is signed in  
