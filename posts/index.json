@@ -9,7 +9,7 @@
     "title": "Password Spraying ManageEngine and Other RSA-protected Logins",
     "file": "2025-11-15-Password Spraying ManageEngine.md",
     "date": "2025-11-15",
-    "summary": "How to password spray RSA-encrypted login portals through JavaScript function hooking and Python scripts."
+    "summary": "How to password spray RSA-encrypted login portals with JavaScript function hooking and Python HTTP requests."
   },
   {
     "title": "Please, Please, Please Stop Getting NTLM Relayed",
