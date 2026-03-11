@@ -1,159 +1,136 @@
 /* ============================================================
-   Jake Otte – Dynamic Post Loader (using posts/index.json)
+   Jake Otte – Post List Loader
    ============================================================ */
 
-let md = null;
 let allPosts = [];
 
-// Load markdown-it library for rendering Markdown
-function loadMarkdownLibrary() {
-    return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/markdown-it@13/dist/markdown-it.min.js';
-        script.onload = () => {
-            md = window.markdownit();
-            resolve();
-        };
-        script.onerror = () => {
-            console.error("Failed to load markdown-it library");
-            resolve(); // Resolve anyway so posts still load
-        };
-        document.head.appendChild(script);
-    });
-}
-
-// Initialize on DOMContentLoaded
-document.addEventListener("DOMContentLoaded", async () => {
-    const postsContainer = document.getElementById("posts");
-    if (!postsContainer) return;
-    
-    // Wait for markdown library to load
-    await loadMarkdownLibrary();
-    loadPosts();
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('posts')) loadPosts();
+    initCanvas();
 });
 
-/* Load posts from /posts/index.json */
 async function loadPosts() {
-    const postsContainer = document.getElementById("posts");
-
+    const container = document.getElementById('posts');
     try {
-        const response = await fetch("posts/index.json", { cache: "no-store" });
-        if (!response.ok) throw new Error("Failed to load posts index");
-
-        allPosts = await response.json();
-
-        // Sort by date (newest first)
+        const r = await fetch('posts/index.json', { cache: 'no-store' });
+        if (!r.ok) throw new Error();
+        allPosts = await r.json();
         allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        renderPostsList();
+        const countEl = document.getElementById('post-count');
+        if (countEl) countEl.textContent = allPosts.length + ' posts';
 
-    } catch (err) {
-        console.error("Error loading posts:", err);
+        // Fetch first paragraph from each post in parallel
+        await Promise.all(allPosts.map(async post => {
+            try {
+                const r = await fetch(`posts/${encodeURIComponent(post.file)}`, { cache: 'no-store' });
+                const md = await r.text();
+                post._excerpt = extractExcerpt(md);
+            } catch {
+                post._excerpt = '';
+            }
+        }));
 
-        postsContainer.innerHTML = `
-            <p style="color:#888; font-size:0.9rem;">
-                Failed to load posts. Check console for details.
-            </p>
-        `;
+        renderPosts();
+    } catch (e) {
+        container.innerHTML = '<p style="color:var(--text-soft);font-size:0.82rem;padding:1.5rem 0;">Failed to load posts.</p>';
     }
 }
 
-/* Render the posts list view */
-function renderPostsList() {
-    const postsContainer = document.getElementById("posts");
-    postsContainer.innerHTML = "";
+/* Pull the first substantial prose paragraph out of raw markdown */
+function extractExcerpt(md) {
+    const lines = md.split('\n');
+    let para = '';
+    for (const line of lines) {
+        const t = line.trim();
+        // Skip headings, blank lines, images, code fences, blockquotes, html
+        if (!t) { if (para) break; continue; }
+        if (/^#{1,6}\s/.test(t)) continue;
+        if (/^[`~]{3}/.test(t)) continue;
+        if (/^!\[/.test(t)) continue;
+        if (/^>/.test(t)) continue;
+        if (/^</.test(t)) continue;
+        if (/^[-*+]\s/.test(t)) continue;
+        para += (para ? ' ' : '') + t;
+        if (para.length > 200) break;
+    }
+    // Strip remaining inline markdown: bold, italic, code, links
+    para = para
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')  // links
+        .replace(/`[^`]+`/g, m => m.slice(1,-1))   // inline code
+        .replace(/\*\*([^*]+)\*\*/g, '$1')          // bold
+        .replace(/\*([^*]+)\*/g, '$1')              // italic
+        .replace(/_([^_]+)_/g, '$1');               // underscore italic
+    // Trim to ~480 chars at a word boundary
+    if (para.length > 480) {
+        para = para.slice(0, 480).replace(/\s+\S*$/, '');
+    }
+    return para;
+}
+
+function renderPosts() {
+    const container = document.getElementById('posts');
+    container.innerHTML = '';
 
     allPosts.forEach(post => {
-        const postLink = document.createElement("a");
-        postLink.href = "#";
-        postLink.className = "post";
-        postLink.style.textDecoration = "none";
-        postLink.style.color = "inherit";
-        postLink.style.display = "block";
-        postLink.onclick = (e) => {
-            e.preventDefault();
-            openPost(post);
-        };
-        
-        postLink.innerHTML = `
-            <p>${formatDate(post.date)}</p>
-            <h2>${post.title}</h2>
-            <p>${post.summary}</p>
+        const a = document.createElement('a');
+        a.className = 'post';
+        a.href = `posts/post.html?slug=${post.slug}`;
+        a.innerHTML = `
+            <div class="post-header">
+                <span class="post-date">${formatDate(post.date)}</span>
+                <span class="post-arrow">→</span>
+            </div>
+            <p class="post-title">${post.title}</p>
+            ${post._excerpt ? `
+            <div class="post-excerpt-wrap">
+                <p class="post-excerpt">${post._excerpt}</p>
+                <div class="post-excerpt-fade"></div>
+            </div>
+            ` : ''}
         `;
-
-        postsContainer.appendChild(postLink);
+        container.appendChild(a);
     });
 }
 
-/* Open a post and replace the page layout */
-async function openPost(post) {
+function formatDate(s) {
     try {
-        const response = await fetch(`posts/${post.file}`, { cache: "no-store" });
-        if (!response.ok) throw new Error(`Failed to load post: ${post.file}`);
-
-        const markdown = await response.text();
-        const htmlContent = md.render(markdown);
-
-        // Hide hero section
-        const heroSection = document.querySelector(".hero");
-        heroSection.style.display = "none";
-
-        // Get the posts section
-        const section = document.querySelector(".section");
-        
-        // Replace section content with post view
-        section.innerHTML = `
-            <div class="post-view-header">
-                <button class="post-back-btn" onclick="backToPostsList()">← Back to Posts</button>
-            </div>
-            <div class="post-view-content">
-                <article class="post-article">
-                    <h1>${post.title}</h1>
-                    <p class="post-meta">${formatDate(post.date)}</p>
-                    <div class="post-body">
-                        ${htmlContent}
-                    </div>
-                </article>
-            </div>
-        `;
-
-        // Scroll to top
-        window.scrollTo(0, 0);
-
-    } catch (err) {
-        console.error("Error opening post:", err);
-        alert("Failed to load post. Check console for details.");
-    }
-}
-
-/* Go back to posts list */
-function backToPostsList() {
-    // Show hero section again
-    const heroSection = document.querySelector(".hero");
-    heroSection.style.display = "";
-
-    const section = document.querySelector(".section");
-    section.innerHTML = `
-        <div class="section-header">
-            <h3 class="section-title">Latest Notes</h3>
-            <p class="section-subtitle">Technical breakdowns, research logs, malware ideas</p>
-        </div>
-        <div id="posts"></div>
-    `;
-    renderPostsList();
-    window.scrollTo(0, 0);
-}
-
-/* Convert date → nice human format */
-function formatDate(dateString) {
-    try {
-        const d = new Date(dateString);
-        return d.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric"
+        return new Date(s + 'T12:00:00').toLocaleDateString('en-US', {
+            year: 'numeric', month: 'short', day: 'numeric'
         });
-    } catch (e) {
-        return dateString;
-    }
+    } catch { return s; }
+}
+
+/* ---- Background canvas ---- */
+function initCanvas() {
+    const canvas = document.getElementById('bg-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
+    const spawn  = () => ({
+        x: Math.random() * W, y: Math.random() * H,
+        r: Math.random() * 1.2 + 0.3,
+        vx: (Math.random() - 0.5) * 0.18,
+        vy: (Math.random() - 0.5) * 0.18,
+        a: Math.random()
+    });
+
+    resize();
+    window.addEventListener('resize', resize);
+    for (let i = 0; i < 60; i++) particles.push(spawn());
+
+    (function tick() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0 || p.x > W || p.y < 0 || p.y > H) Object.assign(p, spawn());
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(220,220,220,${p.a * 0.4})`;
+            ctx.fill();
+        });
+        requestAnimationFrame(tick);
+    })();
 }

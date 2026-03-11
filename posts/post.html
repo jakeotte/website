@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loading… – Jake Otte</title>
+    <meta name="description" content="" />
+    <meta property="og:title" content="" />
+    <meta property="og:description" content="" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="" />
+    <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
+    <meta property="og:site_name" content="Jake Otte" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="" />
+    <meta name="twitter:description" content="" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="../assets/img/favicons/favicon.ico" />
+</head>
+
+<body class="page">
+
+    <canvas id="bg-canvas"></canvas>
+
+    <header>
+        <div class="header-top">
+            <a class="brand" href="../index.html">
+                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+                <p class="tag">Offensive Security</p>
+            </a>
+            <nav class="nav">
+                <a href="../index.html">Home</a>
+                <a href="../about.html">About</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="../contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="post-main">
+        <div id="post-loading" style="padding: 4rem 0; color: var(--text-soft); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.15em;">
+            Loading…
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-left">
+                <div class="footer-nav">
+                    <a href="../index.html">Home</a>
+                    <a href="../about.html">About</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                    <a href="../contact.html">Contact</a>
+                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                </div>
+                <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Reading progress bar -->
+    <div id="reading-progress"></div>
+
+    <script>
+    (async () => {
+        // Load markdown-it
+        await new Promise((res, rej) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/markdown-it@13/dist/markdown-it.min.js';
+            s.onload = res; s.onerror = rej;
+            document.head.appendChild(s);
+        });
+        const md = window.markdownit({ html: false, linkify: true, typographer: true });
+
+        // Get slug from URL
+        const params = new URLSearchParams(window.location.search);
+        const slug = params.get('slug');
+        if (!slug) { showError('No post specified.'); return; }
+
+        // Load posts index
+        let posts;
+        try {
+            const r = await fetch('index.json', { cache: 'no-store' });
+            posts = await r.json();
+        } catch (e) { showError('Could not load posts index.'); return; }
+
+        const post = posts.find(p => p.slug === slug);
+        if (!post) { showError(`Post "${slug}" not found.`); return; }
+
+        // Load markdown
+        let markdown;
+        try {
+            const r = await fetch(encodeURIComponent(post.file), { cache: 'no-store' });
+            if (!r.ok) throw new Error();
+            markdown = await r.text();
+        } catch (e) { showError('Could not load post content.'); return; }
+
+        // Set page title and meta tags
+        document.title = post.title + ' – Jake Otte';
+        const desc = post.summary || '';
+        document.querySelector('meta[name="description"]').setAttribute('content', desc);
+        document.querySelector('meta[property="og:title"]').setAttribute('content', post.title + ' – Jake Otte');
+        document.querySelector('meta[property="og:description"]').setAttribute('content', desc);
+        document.querySelector('meta[name="twitter:title"]').setAttribute('content', post.title + ' – Jake Otte');
+        document.querySelector('meta[name="twitter:description"]').setAttribute('content', desc);
+        document.querySelector('meta[property="og:url"]').setAttribute('content', 'https://jakeotte.com/posts/post.html?slug=' + slug);
+
+        // Word count → read time
+        const words = markdown.split(/\s+/).length;
+        const mins = Math.max(1, Math.round(words / 200));
+
+        // Render
+        const html = md.render(markdown);
+
+        // Build prev/next
+        const idx = posts.findIndex(p => p.slug === slug);
+        const prev = posts[idx + 1]; // older
+        const next = posts[idx - 1]; // newer
+
+        const navHtml = `
+            <div class="post-nav">
+                ${prev ? `<a href="post.html?slug=${prev.slug}" class="post-nav-link post-nav-prev">
+                    <span class="post-nav-dir">← Older</span>
+                    <span class="post-nav-title">${prev.title}</span>
+                </a>` : '<span></span>'}
+                ${next ? `<a href="post.html?slug=${next.slug}" class="post-nav-link post-nav-next">
+                    <span class="post-nav-dir">Newer →</span>
+                    <span class="post-nav-title">${next.title}</span>
+                </a>` : '<span></span>'}
+            </div>`;
+
+        document.getElementById('post-main').innerHTML = `
+            <div class="post-view-header">
+                <a href="../index.html" class="post-back-btn">← All Posts</a>
+                <span class="post-read-time">${mins} min read</span>
+            </div>
+            <div class="post-view-content">
+                <article class="post-article">
+                    <h1>${post.title}</h1>
+                    <p class="post-meta">${formatDate(post.date)}</p>
+                    <div class="post-body">${html}</div>
+                </article>
+                ${navHtml}
+            </div>
+        `;
+
+        // Reading progress
+        const bar = document.getElementById('reading-progress');
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement.scrollHeight - window.innerHeight;
+            bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+        }, { passive: true });
+    })();
+
+    function showError(msg) {
+        document.getElementById('post-main').innerHTML =
+            `<p style="padding:4rem 0; color:var(--text-soft); font-size:0.85rem;">${msg} <a href="../index.html">← Back home</a></p>`;
+    }
+
+    function formatDate(s) {
+        try {
+            return new Date(s + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        } catch { return s; }
+    }
+    </script>
+
+    <script defer src="../script.js"></script>
+</body>
+</html>

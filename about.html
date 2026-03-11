@@ -3,25 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About - Jake Otte</title>
+  <title>About – Jake Otte</title>
+  <meta name="description" content="About Jake Otte — offensive security engineer focused on pentesting and evasion research." />
+  <meta property="og:title" content="About – Jake Otte" />
+  <meta property="og:description" content="About Jake Otte — offensive security engineer focused on pentesting and evasion research." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jakeotte.com/about.html" />
+  <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
+  <meta property="og:site_name" content="Jake Otte" />
+  <link rel="canonical" href="https://jakeotte.com/about.html" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="About – Jake Otte" />
+  <meta name="twitter:description" content="About Jake Otte — offensive security engineer focused on pentesting and evasion research." />
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/img/favicons/favicon.ico">
   <script defer src="script.js"></script>
 </head>
 <body class="page">
 
-  <!-- BACKGROUND CANVAS -->
   <canvas id="bg-canvas"></canvas>
 
   <header>
     <div class="header-top">
-      <div class="brand">
-        <h1>> Jake Otte</h1>
+      <a class="brand" href="index.html">
+        <h1>&gt; Jake Otte<span class="cursor"></span></h1>
         <p class="tag">Offensive Security</p>
-      </div>
+      </a>
       <nav class="nav">
         <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="https://jotter.gitbook.io" target="_blank">Notes</a>
+        <a href="about.html" class="active">About</a>
+        <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
         <a href="contact.html">Contact</a>
       </nav>
     </div>
@@ -30,23 +41,29 @@
   <main class="page-content">
     <div class="content-wrapper">
       <h1>About Me</h1>
-      
-      <p>I’m an offensive security engineer focused on real-world attack paths across modern enterprise environments. My work spans web, network, cloud, and Active Directory security, with a particular interest in adversary emulation, post-exploitation tradecraft, and how defensive controls behave under realistic pressure.
 
-I spend time building and analyzing tooling, studying detection boundaries, and experimenting with evasion techniques to better understand where security controls fail and why. This site is a collection of research notes, experiments, and lessons learned from hands-on offensive testing and red-team operations.</p>
+      <p>I'm an offensive security engineer who does pentesting and occasionally digs into evasion research. My work covers web, network, and Active Directory environments — the kind of stuff that comes up regularly on engagements.</p>
+
+      <p>This site is where I write up things I find interesting: techniques I've come across during testing, evasion concepts worth documenting, and anything else that seems worth sharing.</p>
 
       <div class="action-buttons">
-  <a href="contact.html" class="page-cta">
-          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+        <a href="contact.html" class="page-cta">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
           </svg>
           Get in Touch
         </a>
-        <a href="https://jotter.gitbook.io" class="page-cta secondary">
-          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+        <a href="https://jotter.gitbook.io/red-team/" class="page-cta" target="_blank">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
           </svg>
-          View My Notes
+          View Notes
+        </a>
+        <a href="https://github.com/jakeotte" class="page-cta" target="_blank">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/>
+          </svg>
+          GitHub
         </a>
       </div>
     </div>
@@ -55,17 +72,14 @@ I spend time building and analyzing tooling, studying detection boundaries, and 
   <footer>
     <div class="footer-inner">
       <div class="footer-left">
-        <strong>Jake Otte</strong>
-        <p class="muted">Offensive Security • Research • Tools</p>
-      </div>
-      <div class="footer-right">
-        <nav class="footer-nav">
+        <div class="footer-nav">
           <a href="index.html">Home</a>
           <a href="about.html">About</a>
-          <a href="https://jotter.gitbook.io" target="_blank">Notes</a>
+          <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
           <a href="contact.html">Contact</a>
-        </nav>
-        <p class="copyright">© 2025 Jake Otte</p>
+          <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+        </div>
+        <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
       </div>
     </div>
   </footer>

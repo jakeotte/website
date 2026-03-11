@@ -4,98 +4,79 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jake Otte – Offensive Security</title>
-
+    <meta name="description" content="Jake Otte — offensive security engineer. Posts on pentesting techniques, evasion research, and things worth documenting." />
+    <meta property="og:title" content="Jake Otte – Offensive Security" />
+    <meta property="og:description" content="Jake Otte — offensive security engineer. Posts on pentesting techniques, evasion research, and things worth documenting." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://jakeotte.com" />
+    <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
+    <meta property="og:site_name" content="Jake Otte" />
+    <link rel="canonical" href="https://jakeotte.com" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Jake Otte – Offensive Security" />
+    <meta name="twitter:description" content="Jake Otte — offensive security engineer. Posts on pentesting techniques, evasion research, and things worth documenting." />
     <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="assets/img/favicons/favicon.ico" />
     <script defer src="script.js"></script>
 </head>
 
 <body class="index">
 
-    <!-- BACKGROUND CANVAS (your existing JS uses this) -->
     <canvas id="bg-canvas"></canvas>
 
-    <!-- NAVIGATION BAR -->
     <header>
         <div class="header-top">
-            <div class="brand">
-                <h1>&gt; Jake Otte</h1>
+            <a class="brand" href="index.html">
+                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
                 <p class="tag">Offensive Security</p>
-            </div>
-
+            </a>
             <nav class="nav">
-                <a href="index.html">Home</a>
+                <a href="index.html" class="active">Home</a>
                 <a href="about.html">About</a>
-                <a href="https://jotter.gitbook.io/red-team/">Notes</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
                 <a href="contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main>
+    <main class="index-layout">
 
-        <!-- HERO SECTION -->
-        <section class="hero">
-            <!-- LEFT SIDE: PROFILE -->
-            <div class="hero-profile">
-                <img class="hero-image" src="assets/square.jpg" alt="Profile Image" />
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <img class="sidebar-avatar" src="assets/square.jpg" alt="Jake Otte" />
+            <h2 class="sidebar-name">Jake Otte</h2>
+            <p class="sidebar-role">Offensive Security Engineer</p>
+            <p class="sidebar-bio">Pentesting and evasion research. This site is where I write up things I find interesting.</p>
+            <nav class="sidebar-links">
+                <a href="about.html">About</a>
+                <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </aside>
 
-                <div class="hero-meta">
-                    <div class="hero-meta-row">
-                        <span class="hero-meta-label">Role</span>
-                        <span class="hero-meta-value">Offensive Security</span>
-                    </div>
-                    <div class="hero-meta-row">
-                        <span class="hero-meta-label">Focus</span>
-                        <span class="hero-meta-value">Modern Tradecraft · Adversary Emulation</span>
-                    </div>
-                    <div class="hero-meta-row">
-                        <span class="hero-meta-label">Location</span>
-                        <span class="hero-meta-value">United States</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIGHT SIDE: INTRO TEXT -->
-            <div class="hero-content">
-                <h2 class="hero-title">
-                    <span id="hero-name" data-text="Jake Otte">Jake Otte</span>
-                </h2>
-
-                <p class="hero-sub">
-                    I work in offensive security with a focus on adversary emulation and post-exploitation tradecraft. This site is where I document research, experiments, and things I find interesting.
-                <div class="hero-links">
-                    <a class="hero-cta primary" href="about.html">About Me</a>
-                    <a class="hero-cta secondary" href="https://jotter.gitbook.io/red-team/">My Notes</a>
-                    <a class="hero-cta secondary" href="https://github.com/jakeotte" target="_blank">GitHub</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- POSTS SECTION -->
-        <section class="section">
+        <!-- Posts feed -->
+        <div class="feed">
             <div class="section-header">
-                <h3 class="section-title">Latest Posts</h3>
+                <h3 class="section-title">Research &amp; Posts</h3>
+                <p class="section-subtitle" id="post-count"></p>
             </div>
-
             <div id="posts"></div>
-        </section>
+        </div>
 
     </main>
 
-    <!-- FOOTER -->
     <footer>
         <div class="footer-inner">
             <div class="footer-left">
                 <div class="footer-nav">
                     <a href="index.html">Home</a>
                     <a href="about.html">About</a>
-                    <a href="notes.html">Notes</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
                     <a href="contact.html">Contact</a>
+                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
                 </div>
-                <p class="copyright">
-                    © 2025 Jake Otte — Offensive Security Research
-                </p>
+                <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
             </div>
         </div>
     </footer>

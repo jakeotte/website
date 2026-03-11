@@ -1,42 +1,49 @@
 [
   {
-    "title": "Post-Exploitation with the klist LOLBIN",
+    "title": "Abusing klist.exe for Kerberos Post-Exploitation",
+    "slug": "klist-lolbin",
     "file": "2026-03-10-Post-Exploitation with the klist LOLBIN.md",
     "date": "2026-03-10",
     "summary": "Abusing Windows' native klist.exe binary to enumerate Kerberos tickets and extract credentials."
-  },  
+  },
   {
-    "title": "No More Implants: User’s Guide to Splashtop C2",
+    "title": "No More Implants: User's Guide to Splashtop C2",
+    "slug": "splashtop-c2",
     "file": "2025-12-08-Who Needs Implants - A User's Guide to Splashtop C2.md",
     "date": "2025-12-08",
     "summary": "Exploring why simple, legitimate remote-access tools like Splashtop often outperform custom implants in real red team operations and adversary emulation."
-  },  
+  },
   {
     "title": "Password Spraying ManageEngine and Other RSA-protected Logins",
+    "slug": "password-spraying-manageengine",
     "file": "2025-11-15-Password Spraying ManageEngine.md",
     "date": "2025-11-15",
     "summary": "How to password spray RSA-encrypted login portals with JavaScript function hooking and Python HTTP requests."
   },
   {
     "title": "Please, Please, Please Stop Getting NTLM Relayed",
+    "slug": "ntlm-relay",
     "file": "2025-06-11-Please, Please, Please Stop Getting NTLM Relayed.md",
     "date": "2025-06-11",
     "summary": "Understanding NTLM relay attacks and how to properly secure your network against them across various protocols."
   },
   {
     "title": "Extending Wazuh with Sysmon and LDAP",
-    "file": "2025-04-25-Extending Wazuh with Sysmon and LDAP.md", 
+    "slug": "wazuh-sysmon-ldap",
+    "file": "2025-04-25-Extending Wazuh with Sysmon and LDAP.md",
     "date": "2025-04-25",
     "summary": "How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging."
   },
   {
     "title": "AMSI Bypasses and PowerShell Obfuscation",
+    "slug": "amsi-bypasses",
     "file": "2024-06-17-AMSI Bypasses and PowerShell Obfuscation.md",
-    "date": "2024-06-17", 
+    "date": "2024-06-17",
     "summary": "Understanding AMSI's role in script detection and techniques for bypassing it through PowerShell obfuscation."
   },
   {
     "title": "Bookmarklets as XSS Attack Vectors",
+    "slug": "bookmarklets-xss",
     "file": "2024-06-09-Bookmarklets as XSS Attack Vectors.md",
     "date": "2024-06-09",
     "summary": "Analysis of a real-world attack using browser bookmarklets to bypass CORS protections and steal Roblox account credentials."
