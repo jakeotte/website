@@ -3,7 +3,7 @@
     "title": "Post-Exploitation with the klist LOLBIN",
     "file": "2026-03-10-Post-Exploitation with the klist LOLBIN.md",
     "date": "2026-03-10",
-    "summary": "Abusing Windows' klist LOLBIN to enumerate Kerberos tickets and extract credentials."
+    "summary": "Abusing Windows' native klist.exe binary to enumerate Kerberos tickets and extract credentials."
   },  
   {
     "title": "No More Implants: User’s Guide to Splashtop C2",
