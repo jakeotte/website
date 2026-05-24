@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Extending Wazuh with Sysmon and LDAP – Jake Otte</title>
+    <meta name="description" content="How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging." />
+    <meta property="og:title" content="Extending Wazuh with Sysmon and LDAP – Jake Otte" />
+    <meta property="og:description" content="How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://jakeotte.com/posts/wazuh-sysmon-ldap.html" />
+    <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
+    <meta property="og:site_name" content="Jake Otte" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Extending Wazuh with Sysmon and LDAP – Jake Otte" />
+    <meta name="twitter:description" content="How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging." />
+    <link rel="canonical" href="https://jakeotte.com/posts/wazuh-sysmon-ldap.html" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="../assets/img/favicons/favicon.ico" />
+</head>
+
+<body class="page">
+
+    <canvas id="bg-canvas"></canvas>
+
+    <header>
+        <div class="header-top">
+            <a class="brand" href="../index.html">
+                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+                <p class="tag">Offensive Security</p>
+            </a>
+            <nav class="nav">
+                <a href="../index.html">Home</a>
+                <a href="../about.html">About</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="../contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="post-main">
+        <div class="post-view-header">
+            <a href="../index.html" class="post-back-btn">← All Posts</a>
+            <span class="post-read-time">6 min read</span>
+        </div>
+        <div class="post-view-content">
+            <article class="post-article">
+                <h1>Extending Wazuh with Sysmon and LDAP</h1>
+                <p class="post-meta">April 25, 2025</p>
+                <div class="post-body"><p><img src="../assets/img/wazuh/wazuh.jpg" alt="Wazuh Dashboard">
+<em>Wazuh SIEM Dashboard</em></p>
+<h2>Wazuh</h2>
+<p>Wazuh is an open-source SIEM platform that enables defenders to implement logging and detection infrastructure at no cost. The project is an incredible accomplishment and is continuously being updated with new features, bug fixes, and
+extensions to the base ruleset.</p>
+<p>As with most SIEM solutions, Wazuh relies on worker agents to aggregate logs from endpoints and deliver them to the management server for alerting. By default, Wazuh agents subscribe to a handful of Windows event log channels - Security, System,
+Application, and some other operational ones. These channels provide a large amount of events useful for tracking system configuration changes, user authentications, and the general activity of the enterprise.</p>
+<h2>Sysmon</h2>
+<p>However, Wazuh lacks deeper endpoint protections if you use it off the shelf. Inside of Wazuh’s base ruleset is support for Sysmon - a Sysinternals utility that allows for fine-grained logging of system events like process creation,
+network activity, and driver loads. As a defender, these are absolutely vital events that need to be integrated into the SIEM to effectively detect attacker behavior. The modern threat landscape simply requires visibility into endpoint processes
+to quarantine malware early.</p>
+<p>Sysmon works by parsing a configuration file that specifies which events to listen for. This is an important detail, as Sysmon can become very noisy very quickly. Take for example Sysmon events 12, 13, and 14 that monitor registry change events.
+A normal, relatively idle Windows install will have thousands of registry events a second if not more. A configuration file that is scoped too wide can overwhelm the processing and storage capabilities of the endpoint or SIEM server. Luckily,
+smart people have established a good baseline configuration that limits noise while capturing the more interesting events. I chose to start with <a href="https://github.com/SwiftOnSecurity/sysmon-config">SwiftOnSecurity’s baseline configuration</a> due to
+its relative popularity.</p>
+<p>After parsing the configuration file, Sysmon will load a kernel driver to setup callbacks on the events you have specified. When a subscribed event occurs, it will be recorded and shipped to the event log channel under <code>Sysmon</code>. Note that Sysmon
+events are not under Security, System, Application, or other standard channels - as such, it will <strong>not be received by the Wazuh agent under a default configuration.</strong> To ingest the new <code>Sysmon</code> event channel with a Wazuh agent, either configure
+the agent’s <code>ossec.conf</code> file locally on a specific endpoint or use the <code>Management &gt; Groups</code> tab to make batch changes remotely. All that needs to be added are a few lines:</p>
+<pre><code class="language-xml">&lt;localfile&gt;
+  &lt;location&gt;Microsoft-Windows-Sysmon/Operational&lt;/location&gt;
+  &lt;log_format&gt;eventchannel&lt;/log_format&gt;
+&lt;/localfile&gt;
+</code></pre>
+<h2>Sysmon Rules and Alerts</h2>
+<p>The hard part is over. With Sysmon events flowing in from the reconfigured agent, you should see plenty of alerts from the <code>Sysmon</code> event log channel. Wazuh’s base Sysmon ruleset is not bad but can be a bit noisy, especially in its determination
+of “suspicious CMD shell launched”. If you want to write your own rules, Wazuh actually provides named groups for each Sysmon event ID. For example, if you wanted to write an alert for all High-integrity (Administrative) CMD or PowerShell sessions,
+you can simply use the Event ID 1 - Process Creation sysmon group:</p>
+<pre><code class="language-xml">    &lt;rule id=&quot;250002&quot; level=&quot;10&quot;&gt;
+        &lt;if_group&gt;sysmon_event1&lt;/if_group&gt;
+        &lt;field name=&quot;win.eventdata.image&quot;&gt;\\powershell.exe$|\\pwsh.exe$|\\cmd.exe$&lt;/field&gt;
+        &lt;field name=&quot;win.eventdata.integrityLevel&quot;&gt;High&lt;/field&gt;
+        &lt;description&gt;Administrative Command/PowerShell Session&lt;/description&gt;
+    &lt;/rule&gt;
+</code></pre>
+<p>I have created a handful of useful rules to detect common LOLBIN abuse and lateral movement techniques, such as WinRM process spawning and <code>certutil.exe</code> abuse:</p>
+<pre><code class="language-xml">    &lt;rule id=&quot;255006&quot; level=&quot;10&quot;&gt;
+        &lt;if_group&gt;sysmon_event1&lt;/if_group&gt;
+        &lt;field name=&quot;win.eventdata.image&quot;&gt;wsmprovhost.exe&lt;/field&gt;
+        &lt;description&gt;WinRM Invoked by $(win.eventdata.user)&lt;/description&gt;
+    &lt;/rule&gt; 
+    &lt;rule id=&quot;255007&quot; level=&quot;8&quot;&gt;
+        &lt;if_group&gt;sysmon_event1&lt;/if_group&gt;
+        &lt;field name=&quot;win.eventdata.parentImage&quot;&gt;wsmprovhost.exe&lt;/field&gt;
+        &lt;description&gt;Process Launched via WinRM&lt;/description&gt;
+    &lt;/rule&gt;
+    &lt;rule id=&quot;250019&quot; level=&quot;10&quot;&gt;
+        &lt;if_sid&gt;250018&lt;/if_sid&gt;
+        &lt;field name=&quot;win.eventdata.commandline&quot;&gt;URL|decode|decodehex|urlcache|ping&lt;/field&gt;
+        &lt;description&gt;Suspicious certutil.exe Execution&lt;/description&gt;
+    &lt;/rule&gt;
+</code></pre>
+<p>I hope you recognize the incredible power of Sysmon’s logs and write some interesting rules too!</p>
+<h2>Logging LDAP</h2>
+<p>Of course, any red teamer will tell you that Sysmon is not necessarily a big deal. A more limited configuration file will limit noise, but it will also let attacker potentially slip by unnoticed. Furthermore, Sysmon cannot necessarily detect
+more advanced malware techniques such as remote threadless injection or techniques that do not rely on <code>CreateRemoteThread</code> without a fairly loose configuration. The point is - we can’t just rely on endpoint behavior for threat detections. We
+have to look at the network level.</p>
+<p>This turned my attention to LDAP, as it is an absolutely vital source of abuse in attacks for enumeration and escalation attempts. My goal was to identify LDAP queries that I deemed “suspicious” - things like listing all SPNs for Kerberoasting,
+finding Constrained Delegation principals, etc. After doing some research, it turns out that Domain Controllers do not log incoming LDAP queries or binds at all by default, and it requires manual registry changes. You can still implement the changes
+via GPO, but its annoying regardless:</p>
+<pre><code>HKLM:\SYSTEM\CurrentControlSet\Services\NTDS\Diagnostics -&gt; 15 Field Engineering SET TO 5
+HKLM:\SYSTEM\CurrentControlSet\Services\NTDS\Parameters -&gt; Expensive Search Results Threshold SET TO 1
+HKLM:\SYSTEM\CurrentControlSet\Services\NTDS\Parameters -&gt; Inefficient Search Results Threshold SET TO 1
+HKLM:\SYSTEM\CurrentControlSet\Services\NTDS\Parameters -&gt; Search Time Threshold (msecs) SET TO 1
+</code></pre>
+<p>Enabling these registry changes will allow for the logging of Event ID 1644 under the Directory Service event channel. Event 1644 isn’t really supposed to be used just for logging queries - it is meant to log queries that are overly expensive
+and may be slowing down AD processing times. However, we can force the event to trigger for ALL LDAP queries by lowering the thresholds of each metric to the minimum (1). After changing the registry values, you should start to see 1644s flow in.</p>
+<p><img src="../assets/img/wazuh/1644.gif" alt="1644"></p>
+<h2>LDAP and Wazuh</h2>
+<p>As before, Wazuh does not ingest the <code>Directory Service</code> event channel by default. We can again either edit the <code>ossec.conf</code> file or use Groups to add the lines:</p>
+<pre><code class="language-xml">&lt;localfile&gt;
+    &lt;location&gt;Directory Service&lt;/location&gt;
+    &lt;log_format&gt;eventchannel&lt;/log_format&gt;
+&lt;/localfile&gt;
+</code></pre>
+<p>However, this time around you won’t see anything in Wazuh after adding those lines. We have to manually add our own <code>Directory Service</code> parent channel rule to capture 1644s and sort them further:</p>
+<pre><code class="language-xml">&lt;rule id=&quot;60235&quot; level=&quot;0&quot;&gt;
+    &lt;if_sid&gt;60009&lt;/if_sid&gt;
+    &lt;field name=&quot;win.system.channel&quot;&gt;Directory Service&lt;/field&gt;
+    &lt;description&gt;Directory Service Log Event&lt;/description&gt;
+    &lt;options&gt;no_full_log&lt;/options&gt;
+&lt;/rule&gt;
+</code></pre>
+<p>Note that the rule ID 60009 may change in future Wazuh versions - it is the rule for <code>INFORMATIONAL</code> severity events that aren’t already a member of a default event channel (<code>Security</code>, <code>Application</code>, etc). It is important to note that the current
+version of Wazuh has a <strong>log testing bug for new Windows event channels</strong>. If you attempt to test a Directory Service log in the web interface or with <code>wazuh-logtest</code>, it will NOT WORK unless you make changes to the parent Windows rule!</p>
+<p>From the parent rule, we can sort for the event ID 1644. You will undoubtedly find that the DC is reporting a huge amount of LDAP queries made from itself (on the loopback interface). We can sort these out to find only remote LDAP queries:</p>
+<pre><code class="language-xml">  &lt;rule id=&quot;60236&quot; level=&quot;3&quot;&gt;
+    &lt;if_sid&gt;60235&lt;/if_sid&gt;
+    &lt;field name=&quot;win.system.eventID&quot;&gt;1644&lt;/field&gt;
+    &lt;field name=&quot;win.eventdata.data&quot; negate=&quot;yes&quot;&gt;[::1]&lt;/field&gt;
+    &lt;description&gt;Remote LDAP query processed&lt;/description&gt;
+    &lt;options&gt;no_full_log&lt;/options&gt;
+  &lt;/rule&gt;
+</code></pre>
+<p>From here I decided to make a decision to focus on LDAP queries made by valid user accounts. While I myself have certainly used computer and service accounts to make LDAP queries before, my goal was to detect initial enumeration attempts commonly
+made from compromised user sessions - typically through a phishing payload:</p>
+<pre><code class="language-xml">  &lt;rule id=&quot;60237&quot; level=&quot;8&quot;&gt;
+    &lt;if_sid&gt;60236&lt;/if_sid&gt;
+    &lt;field name=&quot;win.eventdata.data&quot; negate=&quot;yes&quot;&gt;MSOL_\.+$|\$$|UNAVAILABLE$&lt;/field&gt;
+    &lt;description&gt;Remote LDAP query made by user account&lt;/description&gt;
+    &lt;options&gt;no_full_log&lt;/options&gt;
+  &lt;/rule&gt;
+</code></pre>
+<p>Finally, I simply added a regex filter to include any queries I thought were “suspicious”. I referenced the Sigma project’s LDAP query page as well to expand the filter:</p>
+<pre><code class="language-xml">  &lt;rule id=&quot;60238&quot; level=&quot;10&quot;&gt;
+    &lt;if_sid&gt;60237&lt;/if_sid&gt;
+    &lt;regex&gt;\(userAccountControl:1\.2\.840\.113556\.1\.4\.803:=4194304\)|\(userAccountControl:1\.2\.840\.113556\.1\.4\.803:=2097152\)|!\(userAccountControl:1\.2\.840\.113556\.1\.4\.803:=1048574\)|\(userAccountControl:1\.2\.840\.113556\.1\.4\.803:=524288\)|\(userAccountControl:1\.2\.840\.113556\.1\.4\.803:=65536\)|\(userAccountControl:1\.2\.840\.113556\.1\.4\.803:=8192\)|\(userAccountControl:1\.2\.840\.113556\.1\.4\.803:=544\)|!\(UserAccountControl:1\.2\.840\.113556\.1\.4\.803:=2\)|msDS-AllowedToActOnBehalfOfOtherIdentity|msDS-AllowedToDelegateTo|msDS-GroupManagedServiceAccount|\(accountExpires=9223372036854775807\)|\(accountExpires=0\)|\(adminCount=1\)|ms-MCS-AdmPwd&lt;/regex&gt;
+    &lt;description&gt;Suspicious remote LDAP query made by user account&lt;/description&gt;
+    &lt;options&gt;no_full_log&lt;/options&gt;
+  &lt;/rule&gt;
+</code></pre>
+<p>After implementing the rules and running BloodHound, I instantly got caught!</p>
+</div>
+            </article>
+            <div class="post-nav">
+            <a href="amsi-bypasses.html" class="post-nav-link post-nav-prev">
+                <span class="post-nav-dir">← Older</span>
+                <span class="post-nav-title">AMSI Bypasses and PowerShell Obfuscation</span>
+            </a>
+            <a href="ntlm-relay.html" class="post-nav-link post-nav-next">
+                <span class="post-nav-dir">Newer →</span>
+                <span class="post-nav-title">Please, Please, Please Stop Getting NTLM Relayed</span>
+            </a>
+        </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-left">
+                <div class="footer-nav">
+                    <a href="../index.html">Home</a>
+                    <a href="../about.html">About</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                    <a href="../contact.html">Contact</a>
+                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                </div>
+                <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="reading-progress"></div>
+
+    <script>
+    const bar = document.getElementById('reading-progress');
+    window.addEventListener('scroll', () => {
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+    }, { passive: true });
+    </script>
+
+    <script defer src="../script.js"></script>
+</body>
+</html>

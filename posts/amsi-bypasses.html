@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AMSI Bypasses and PowerShell Obfuscation – Jake Otte</title>
+    <meta name="description" content="Understanding AMSI's role in script detection and techniques for bypassing it through PowerShell obfuscation." />
+    <meta property="og:title" content="AMSI Bypasses and PowerShell Obfuscation – Jake Otte" />
+    <meta property="og:description" content="Understanding AMSI's role in script detection and techniques for bypassing it through PowerShell obfuscation." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://jakeotte.com/posts/amsi-bypasses.html" />
+    <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
+    <meta property="og:site_name" content="Jake Otte" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="AMSI Bypasses and PowerShell Obfuscation – Jake Otte" />
+    <meta name="twitter:description" content="Understanding AMSI's role in script detection and techniques for bypassing it through PowerShell obfuscation." />
+    <link rel="canonical" href="https://jakeotte.com/posts/amsi-bypasses.html" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="icon" href="../assets/img/favicons/favicon.ico" />
+</head>
+
+<body class="page">
+
+    <canvas id="bg-canvas"></canvas>
+
+    <header>
+        <div class="header-top">
+            <a class="brand" href="../index.html">
+                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+                <p class="tag">Offensive Security</p>
+            </a>
+            <nav class="nav">
+                <a href="../index.html">Home</a>
+                <a href="../about.html">About</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="../contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="post-main">
+        <div class="post-view-header">
+            <a href="../index.html" class="post-back-btn">← All Posts</a>
+            <span class="post-read-time">4 min read</span>
+        </div>
+        <div class="post-view-content">
+            <article class="post-article">
+                <h1>AMSI Bypasses and PowerShell Obfuscation</h1>
+                <p class="post-meta">June 17, 2024</p>
+                <div class="post-body"><h1>Introduction to AMSI</h1>
+<p>AMSI, or Anti Malware Scanning Interface, is what Windows uses to detect malware contained in scripts. Scripts may be downloaded remotely and executed only from memory, thereby never touching disk. Windows Defender
+has the ability to routinely scan any downloaded or created file for signatures of malware, but it doesn’t necessarily have this capability for scanning malware executed solely in process memory. AMSI solves this
+problem.</p>
+<p>In simple terms, AMSI works by importing a DLL (<code>amsi.dll</code>) into any <code>cmd</code> or <code>powershell</code> process you create. Every time you issue a command or load a script, the contents of your expression are handed off to
+the machine’s antivirus solution (often Windows Defender) and thoroughly inspected for signatures of malware. This creates a bridge between scripts executed in-memory and the antivirus platform installed on the
+machine.</p>
+<p><img src="../assets/img/amsi/powershell.png" alt="PowerShell modules list">
+<em>PowerShell modules showing AMSI integration</em></p>
+<h1>Breaking AMSI</h1>
+<p>This bridge can be broken in a variety of ways. <code>Amsi.dll</code> is loaded into the memory of a process you control, and as such the contents of it may be changed at will. If you are able to successfully alter the contents
+of AMSI-related functions or variables, you may be able to ignore the antivirus solution entirely and load as many malicious scripts as you would like. Note that in some cases, particularly EDR solutions, <em>process</em>
+heuristics may be analyzed to determine if your activities are malicious, regardless of the contents of process memory.</p>
+<p>The methods for corrupting AMSI memory in order to bypass it change nearly every week nowadays. Participating in the cat-and-mouse game of defeating AMSI is outside the scope of this post - instead, we will discuss
+practically using and altering existing bypasses.</p>
+<h1>Existing Bypasses</h1>
+<p>Attempting to load any malicious script in a standard security configuration will likely result in this familiar message:</p>
+<p><img src="../assets/img/amsi/blocked.png" alt="Blocked"></p>
+<p>It would seem that AMSI has detected something in our script that appears malicious. In order to break AMSI, we can use any number of <a href="https://github.com/S3cur3Th1sSh1t/Amsi-Bypass-Powershell">existing bypasses</a>. If
+we are lucky, an existing bypass will not be detected by Defender and we may corrupt the AMSI module in our process. Afterwards, we may execute any malicious script we want:</p>
+<p><img src="../assets/img/amsi/bypass.png" alt="Bypass"></p>
+<h1>Modifying Bypasses with AMSITrigger</h1>
+<p>Unfortunately, getting an AMSI bypass to work out of the box is far from common. Most bypasses have been around long enough to be signatured in some capacity by Windows Defender or other antivirus solutions, and as
+such won’t be able to free your process from the loaded DLL. In these cases, we will need to modify and obfuscate our AMSI bypass scripts. A fantastic tool for this process is <a href="https://github.com/RythmStick/AMSITrigger">AMSITrigger</a>.</p>
+<p>AMSITrigger works by breaking your script or code block down into chunks before ‘feeding’ them to AMSI via temporary files. If AMSI triggers an alert on a temporary file, we know that a problem exists within a
+certain block of the code:</p>
+<p><img src="../assets/img/amsi/amsitrigger.png" alt="AMSITrigger"></p>
+<p>In the above example, it appears that AMSI likely triggers on the string “VirtualProtect” or “WriteProcessMemory” - notorious Win32 API functions used for process memory manipulation. However, there is no way to say
+for sure which string we need to alter. I recommend substituting strings you may suspect as being triggers with a placeholder in order to see what you will need to obfuscate. After messing around with the triggered
+code block, I found that <code>WriteProcessMemory</code> was causing problems, as can be seen from my clever substitution with <code>AAAAAAAAAAAAAAAAAA</code>:</p>
+<p><img src="../assets/img/amsi/amsitrigger2.png" alt="AMSITrigger2"></p>
+<p>Now we will need to obfuscate the <code>WriteProcessMemory</code> string.</p>
+<h1>Obfuscating PowerShell Strings</h1>
+<p>There’s a lot of ways to hide strings in PowerShell. We can base-64 encode them:</p>
+<p><img src="../assets/img/amsi/base64.png" alt="base64"></p>
+<p>Reverse them:</p>
+<p><img src="../assets/img/amsi/reverse.png" alt="reverse"></p>
+<p>Or any other number of techniques. As good as those are, they probably aren’t going to cut it in the big leagues of Windows Defender. Enter the classic tool <a href="https://github.com/danielbohannon/Invoke-Obfuscation">Invoke-Obfuscation</a>.
+We can use this popular obfuscation tool to customize our AMSI bypass. Let’s try obfuscating the expression <code>$win = &quot;WriteProcessMemory&quot;</code>:</p>
+<p><img src="../assets/img/amsi/invokeobfuscate.png" alt="Invoke-Obfuscation"></p>
+<p>Great! We can now update our code block with the expression:</p>
+<pre><code class="language-posh">$code = @&quot;{
+...
+            }
+            uint oldprotect;
+            if (!VirtualProtect(originalSite, (UIntPtr)patch.Length, 0x40, out oldprotect)) {
+                throw new Win32Exception();
+            }
+            IntPtr written = IntPtr.Zero;
+
+&quot;@
+&amp; ((geT-vaRIaBlE '*Mdr*').nAMe[3,11,2]-JOiN'')((((&quot;{6}{7}{0}{2}{5}{3}{8}{1}{4}&quot;-f' 7GJWri','ory','te','o','7GJ','Pr','hV','pwin =','cessMem'))-cRepLacE '7GJ',[CHAr]34-RePlACe ([CHAr]104+[CHAr]86+[CHAr]112),[CHAr]36))
+$code = $code + &quot;if (!Methods.$win(GetCurrentProcess(), originalSite, patch, (uint)patch.Length, out written)) {&quot;
+$code = $code + @&quot;
+                throw new Win32Exception();
+            }
+            if (!FlushInstructionCache(GetCurrentProcess(), originalSite, (UIntPtr)patch.Length)) {
+                throw new Win32Exception();
+            }
+            //Restore the original memory protection settings
+            if (!VirtualProtect(originalSite, (UIntPtr)patch.Length, oldprotect, out oldprotect)) {
+                throw new Win32Exception();
+            }
+        }
+...
+}
+&quot;@
+</code></pre>
+<p>And check with AMSITrigger once more:</p>
+<p><img src="../assets/img/amsi/win.png" alt="win"></p>
+<p>Success! We have generated a custom obfuscated AMSI bypass. We can now load this bypass script into memory before executing malicious scripts without any issue.</p>
+<h1>Conclusion</h1>
+<p>Bypassing AMSI and understanding how to generate custom obfuscated bypasses is essential for any red teamer’s toolkit. The techniques I’ve presented above are the tip of the iceberg when it comes to payload
+development. Attacking an environment protected by a sound security infrastructure and endpoint agents will be much trickier - you will need to consider heuristic analysis and other factors beyond simply strings. I
+recommend getting a hold of whatever EDR you are going up against and running AMSITrigger through it before dropping any payloads. Over time, you will attain quite a collection of very sneaky scripts!</p>
+</div>
+            </article>
+            <div class="post-nav">
+            <a href="bookmarklets-xss.html" class="post-nav-link post-nav-prev">
+                <span class="post-nav-dir">← Older</span>
+                <span class="post-nav-title">Bookmarklets as XSS Attack Vectors</span>
+            </a>
+            <a href="wazuh-sysmon-ldap.html" class="post-nav-link post-nav-next">
+                <span class="post-nav-dir">Newer →</span>
+                <span class="post-nav-title">Extending Wazuh with Sysmon and LDAP</span>
+            </a>
+        </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-left">
+                <div class="footer-nav">
+                    <a href="../index.html">Home</a>
+                    <a href="../about.html">About</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                    <a href="../contact.html">Contact</a>
+                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                </div>
+                <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="reading-progress"></div>
+
+    <script>
+    const bar = document.getElementById('reading-progress');
+    window.addEventListener('scroll', () => {
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+    }, { passive: true });
+    </script>
+
+    <script defer src="../script.js"></script>
+</body>
+</html>
