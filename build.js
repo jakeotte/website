@@ -79,6 +79,7 @@ posts.forEach((post, idx) => {
     const desc    = esc(post.summary || '');
     const title   = esc(post.title);
     const pageUrl = `https://jakeotte.com/posts/${post.slug}.html`;
+    const ogImage = `https://jakeotte.com/${post.image || 'assets/square.jpg'}`;
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -91,7 +92,7 @@ posts.forEach((post, idx) => {
     <meta property="og:description" content="${desc}" />
     <meta property="og:type" content="article" />
     <meta property="og:url" content="${pageUrl}" />
-    <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
+    <meta property="og:image" content="${ogImage}" />
     <meta property="og:site_name" content="Jake Otte" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="${title} – Jake Otte" />

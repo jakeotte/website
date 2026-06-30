@@ -1,5 +1,13 @@
 [
   {
+    "title": "klist.exe Revisited: Internals and Further Use Cases",
+    "slug": "klist-revisited",
+    "file": "2026-06-30-klist.exe Revisited - Internals and Further Use Cases.md",
+    "date": "2026-06-30",
+    "image": "assets/img/klist2/priv.png",
+    "summary": "A follow-up on klist.exe: extracting non-zeroed TGT session keys without SeTcbPrivilege, abusing WinRM for in-memory remote dumping, and examining behavior under Credential Guard."
+  },
+  {
     "title": "Abusing klist.exe for Kerberos Post-Exploitation",
     "slug": "klist-lolbin",
     "file": "2026-03-10-Post-Exploitation with the klist LOLBIN.md",
