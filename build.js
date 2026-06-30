@@ -100,6 +100,10 @@ posts.forEach((post, idx) => {
     <link rel="canonical" href="${pageUrl}" />
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="../assets/img/favicons/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png" />
+    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#a3e635" />
 </head>
 
 <body class="page">
@@ -212,4 +216,31 @@ if (indexHtml.includes(BEGIN)) {
 
 fs.writeFileSync(path.join(ROOT_DIR, 'index.html'), indexHtml);
 console.log('  index.html');
+
+// ── Generate sitemap.xml ───────────────────────────────────────────────────────
+
+const SITE = 'https://jakeotte.com';
+const today = new Date().toISOString().slice(0, 10);
+
+const staticUrls = [
+    { loc: `${SITE}/`,             lastmod: today },
+    { loc: `${SITE}/about.html`,   lastmod: today },
+    { loc: `${SITE}/contact.html`, lastmod: today },
+];
+const postUrls = posts.map(post => ({
+    loc: `${SITE}/posts/${post.slug}.html`,
+    lastmod: post.date,
+}));
+
+const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${[...staticUrls, ...postUrls].map(u => `    <url>
+        <loc>${u.loc}</loc>
+        <lastmod>${u.lastmod}</lastmod>
+    </url>`).join('\n')}
+</urlset>
+`;
+
+fs.writeFileSync(path.join(ROOT_DIR, 'sitemap.xml'), sitemapXml);
+console.log('  sitemap.xml');
 console.log(`\nBuilt ${posts.length} posts.`);
