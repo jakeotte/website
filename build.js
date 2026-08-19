@@ -7,6 +7,14 @@ const MarkdownIt = require('markdown-it');
 
 const md = new MarkdownIt({ html: false, linkify: true, typographer: true });
 
+// The page title owns the single h1. Markdown section headings start at h2.
+for (const rule of ['heading_open', 'heading_close']) {
+    md.renderer.rules[rule] = (tokens, idx, options, env, self) => {
+        if (tokens[idx].tag === 'h1') tokens[idx].tag = 'h2';
+        return self.renderToken(tokens, idx, options);
+    };
+}
+
 const POSTS_DIR = path.join(__dirname, 'posts');
 const ROOT_DIR  = __dirname;
 
@@ -47,6 +55,18 @@ function excerpt(mdText) {
     return para;
 }
 
+function formatFigures(html) {
+    return html
+        .replace(
+            /<blockquote>\s*<p>\s*(<img\b[^>]*>)\s*<em>([\s\S]*?)<\/em>\s*<\/p>\s*<\/blockquote>/g,
+            '<figure>$1<figcaption>$2</figcaption></figure>'
+        )
+        .replace(
+            /<blockquote>\s*<p>\s*(<img\b[^>]*>)\s*<\/p>\s*<\/blockquote>/g,
+            '<figure>$1</figure>'
+        );
+}
+
 // ── Generate post pages ────────────────────────────────────────────────────────
 
 posts.forEach((post, idx) => {
@@ -54,7 +74,7 @@ posts.forEach((post, idx) => {
     if (!fs.existsSync(mdPath)) { console.warn(`SKIP (not found): ${post.file}`); return; }
 
     const markdown  = fs.readFileSync(mdPath, 'utf-8');
-    const bodyHtml  = md.render(markdown);
+    const bodyHtml  = formatFigures(md.render(markdown));
     const words     = markdown.split(/\s+/).length;
     const mins      = Math.max(1, Math.round(words / 200));
 
@@ -103,37 +123,42 @@ posts.forEach((post, idx) => {
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png" />
-    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#a3e635" />
+    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#c9e3f6" />
 </head>
 
 <body class="page">
 
+    <a class="skip-link" href="#post-main">Skip to article</a>
     <canvas id="bg-canvas"></canvas>
 
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+                <h1>&gt; Jake Otte</h1>
                 <p class="tag">Offensive Security</p>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
-                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
                 <a href="../contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
     <main id="post-main">
-        <div class="post-view-header">
-            <a href="../index.html" class="post-back-btn">← All Posts</a>
-            <span class="post-read-time">${mins} min read</span>
-        </div>
         <div class="post-view-content">
+            <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
             <article class="post-article">
-                <h1>${title}</h1>
-                <p class="post-meta">${fmtLong(post.date)}</p>
+                <header class="post-heading">
+                    <h1>${title}</h1>
+                    <div class="post-meta">
+                        <time datetime="${post.date}">${fmtLong(post.date)}</time>
+                        <span aria-hidden="true">·</span>
+                        <span>${mins} min read</span>
+                    </div>
+                    <p class="post-deck">${desc}</p>
+                </header>
                 <div class="post-body">${bodyHtml}</div>
             </article>
             ${navHtml}
@@ -146,9 +171,9 @@ posts.forEach((post, idx) => {
                 <div class="footer-nav">
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
-                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
                     <a href="../contact.html">Contact</a>
-                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                    <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
                 </div>
                 <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
             </div>
@@ -175,15 +200,24 @@ posts.forEach((post, idx) => {
 
 // ── Update index.html ──────────────────────────────────────────────────────────
 
-const postsHtml = posts.map(post => {
+const postsHtml = posts.map((post, idx) => {
     const mdPath   = path.join(POSTS_DIR, post.file);
-    const ex       = fs.existsSync(mdPath) ? excerpt(fs.readFileSync(mdPath, 'utf-8')) : '';
+    const markdown = fs.existsSync(mdPath) ? fs.readFileSync(mdPath, 'utf-8') : '';
+    const opening  = markdown ? excerpt(markdown) : '';
+    const ex       = opening.length >= 100 && /[.!?][\"']?$/.test(opening.trim())
+        ? opening
+        : (post.summary || opening);
+    const mins     = Math.max(1, Math.round(markdown.split(/\s+/).length / 200));
     const excerptBlock = ex
         ? `\n            <div class="post-excerpt-wrap">\n                <p class="post-excerpt">${esc(ex)}</p>\n                <div class="post-excerpt-fade"></div>\n            </div>`
         : '';
-    return `        <a class="post" href="posts/${post.slug}.html">
+    return `        <a class="post${idx === 0 ? ' featured' : ''}" href="posts/${post.slug}.html">
             <div class="post-header">
-                <span class="post-date">${fmtShort(post.date)}</span>
+                <div class="post-details">
+                    <time class="post-date" datetime="${post.date}">${fmtShort(post.date)}</time>
+                    <span class="post-meta-separator" aria-hidden="true">·</span>
+                    <span class="post-card-read-time">${mins} min read</span>
+                </div>
                 <span class="post-arrow">→</span>
             </div>
             <p class="post-title">${esc(post.title)}</p>${excerptBlock}

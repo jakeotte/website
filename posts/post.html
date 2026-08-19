@@ -20,18 +20,19 @@
 
 <body class="page">
 
+    <a class="skip-link" href="#post-main">Skip to article</a>
     <canvas id="bg-canvas"></canvas>
 
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+                <h1>&gt; Jake Otte</h1>
                 <p class="tag">Offensive Security</p>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
-                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
                 <a href="../contact.html">Contact</a>
             </nav>
         </div>
@@ -49,9 +50,9 @@
                 <div class="footer-nav">
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
-                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
                     <a href="../contact.html">Contact</a>
-                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                    <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
                 </div>
                 <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
             </div>
@@ -110,7 +111,7 @@
         const mins = Math.max(1, Math.round(words / 200));
 
         // Render
-        const html = md.render(markdown);
+        const html = formatArticle(md.render(markdown));
 
         // Build prev/next
         const idx = posts.findIndex(p => p.slug === slug);
@@ -130,14 +131,18 @@
             </div>`;
 
         document.getElementById('post-main').innerHTML = `
-            <div class="post-view-header">
-                <a href="../index.html" class="post-back-btn">← All Posts</a>
-                <span class="post-read-time">${mins} min read</span>
-            </div>
             <div class="post-view-content">
+                <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
                 <article class="post-article">
-                    <h1>${post.title}</h1>
-                    <p class="post-meta">${formatDate(post.date)}</p>
+                    <header class="post-heading">
+                        <h1>${post.title}</h1>
+                        <div class="post-meta">
+                            <time datetime="${post.date}">${formatDate(post.date)}</time>
+                            <span aria-hidden="true">·</span>
+                            <span>${mins} min read</span>
+                        </div>
+                        <p class="post-deck">${desc}</p>
+                    </header>
                     <div class="post-body">${html}</div>
                 </article>
                 ${navHtml}
@@ -155,6 +160,40 @@
     function showError(msg) {
         document.getElementById('post-main').innerHTML =
             `<p style="padding:4rem 0; color:var(--text-soft); font-size:0.85rem;">${msg} <a href="../index.html">← Back home</a></p>`;
+    }
+
+    function formatArticle(html) {
+        const template = document.createElement('template');
+        template.innerHTML = html;
+
+        template.content.querySelectorAll('h1').forEach(heading => {
+            const h2 = document.createElement('h2');
+            h2.innerHTML = heading.innerHTML;
+            heading.replaceWith(h2);
+        });
+
+        template.content.querySelectorAll('blockquote').forEach(quote => {
+            const paragraph = quote.children.length === 1 && quote.firstElementChild.tagName === 'P'
+                ? quote.firstElementChild
+                : null;
+            if (!paragraph) return;
+
+            const children = Array.from(paragraph.children);
+            const image = children[0];
+            const caption = children[1];
+            if (!image || image.tagName !== 'IMG' || children.length > 2 || (caption && caption.tagName !== 'EM')) return;
+
+            const figure = document.createElement('figure');
+            figure.append(image.cloneNode(true));
+            if (caption) {
+                const figcaption = document.createElement('figcaption');
+                figcaption.innerHTML = caption.innerHTML;
+                figure.append(figcaption);
+            }
+            quote.replaceWith(figure);
+        });
+
+        return template.innerHTML;
     }
 
     function formatDate(s) {

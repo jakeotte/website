@@ -4,76 +4,120 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About – Jake Otte</title>
-  <meta name="description" content="About Jake Otte — OSCP/CRTO/CRTP/MCRTP offensive security engineer focused on Windows post-exploitation, hybrid attacks, and malwareless red teaming." />
+  <meta name="description" content="About Jake Otte — red team operator working across cloud, Active Directory, internal networks, and web applications." />
   <meta property="og:title" content="About – Jake Otte" />
-  <meta property="og:description" content="About Jake Otte — OSCP/CRTO/CRTP/MCRTP offensive security engineer focused on Windows post-exploitation, hybrid attacks, and malwareless red teaming." />
+  <meta property="og:description" content="About Jake Otte — red team operator working across cloud, Active Directory, internal networks, and web applications." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://jakeotte.com/about.html" />
-  <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
+  <meta property="og:image" content="https://jakeotte.com/assets/og.png" />
   <meta property="og:site_name" content="Jake Otte" />
   <link rel="canonical" href="https://jakeotte.com/about.html" />
-  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="About – Jake Otte" />
-  <meta name="twitter:description" content="About Jake Otte — OSCP/CRTO/CRTP/MCRTP offensive security engineer focused on Windows post-exploitation, hybrid attacks, and malwareless red teaming." />
+  <meta name="twitter:description" content="About Jake Otte — red team operator working across cloud, Active Directory, internal networks, and web applications." />
+  <meta name="twitter:image" content="https://jakeotte.com/assets/og.png" />
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="assets/img/favicons/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicons/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicons/apple-touch-icon.png">
-  <link rel="mask-icon" href="assets/img/favicons/safari-pinned-tab.svg" color="#a3e635">
+  <link rel="mask-icon" href="assets/img/favicons/safari-pinned-tab.svg" color="#c9e3f6">
   <script defer src="script.js"></script>
 </head>
 <body class="page">
 
+  <a class="skip-link" href="#main-content">Skip to content</a>
   <canvas id="bg-canvas"></canvas>
 
   <header>
     <div class="header-top">
       <a class="brand" href="index.html">
-        <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+        <h1>&gt; Jake Otte</h1>
         <p class="tag">Offensive Security</p>
       </a>
       <nav class="nav">
         <a href="index.html">Home</a>
         <a href="about.html" class="active">About</a>
-        <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+        <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
         <a href="contact.html">Contact</a>
       </nav>
     </div>
   </header>
 
-  <main class="page-content">
-    <div class="content-wrapper">
+  <main class="page-content" id="main-content">
+    <div class="content-wrapper about-page">
       <div class="about-hero">
         <img class="about-avatar" src="assets/square.jpg" alt="Jake Otte" />
         <div class="about-hero-text">
-          <h1>About Me</h1>
-          <p class="about-hero-role">Red Team Operator</p>
+          <p class="page-overline">About</p>
+          <h1>Jake Otte</h1>
+          <p class="about-hero-role">Red Team Operator <span aria-hidden="true">/</span> Security Researcher</p>
         </div>
       </div>
 
-      <p>I'm an offensive security engineer who does pentesting and occasionally digs into evasion research. My work covers web, network, and Active Directory environments — the kind of stuff that comes up regularly on engagements.</p>
+      <p class="page-lede">I’m a red team operator at Armadin, running full-scope offensive engagements in enterprise environments and helping evaluate and improve an AI-assisted attack platform.</p>
 
-      <p>I've run dozens of internal and external network penetration tests and web application assessments across a wide range of industries — international airports, regional and international financial institutions, healthcare organizations, and Division 1 universities.</p>
+      <div class="about-layout">
+        <div class="about-story">
+          <section>
+            <h2>Work in practice</h2>
+            <p>I work across AWS, Azure, Entra ID, Active Directory, internal networks, and web applications. I’ve owned engagements from scoping through executive readout and tested organizations across financial services, aviation, higher education, healthcare, and SaaS—including more than 70 penetration tests in a prior role.</p>
+          </section>
 
-      <p>Certifications: <code>OSCP</code> <code>CRTO</code> <code>CRTP</code> <code>MCRTP</code></p>
+          <section>
+            <h2>Current interests</h2>
+            <p>I spend most of my research time on Windows post-exploitation, cloud-to-AD attack paths, native-tool operations, and EDR evasion. At Armadin, I also contribute to attack-path collection and network misconfiguration detection for an AI-assisted offensive platform.</p>
+          </section>
 
-      <p>Lately I'm most interested in Windows post-exploitation, hybrid (on-prem/Entra) attack paths, and malwareless red teaming — using native tooling and legitimate software instead of custom implants. This site is where I write up things I find interesting along the way: techniques I've come across during testing, evasion concepts worth documenting, and anything else that seems worth sharing.</p>
+          <section>
+            <h2>Why I write</h2>
+            <p>This site is my working notebook for techniques that proved useful, assumptions worth challenging, and technical details that rarely survive an executive summary. My public work includes documenting <code>klist.exe</code> as a post-exploitation LOLBIN and building tooling to extract Kerberos tickets in ccache format.</p>
+          </section>
+        </div>
+
+        <aside class="about-details" aria-label="Areas of focus and certifications">
+          <div class="detail-group">
+            <h2>Coverage</h2>
+            <ul>
+              <li>AWS, Azure &amp; Entra ID</li>
+              <li>Active Directory</li>
+              <li>Internal networks</li>
+              <li>Web applications</li>
+            </ul>
+          </div>
+          <div class="detail-group">
+            <h2>Background</h2>
+            <ul>
+              <li>Red Team Operator, Armadin</li>
+              <li>B.S. Physics, UNC–Chapel Hill</li>
+            </ul>
+          </div>
+          <div class="detail-group">
+            <h2>Certifications</h2>
+            <ul class="credential-list">
+              <li>OSCP</li>
+              <li>CRTO</li>
+              <li>CRTP</li>
+              <li>MCRTP</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
 
       <div class="action-buttons">
         <a href="contact.html" class="page-cta">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
           </svg>
-          Get in Touch
+          Get in touch
         </a>
-        <a href="https://jotter.gitbook.io/red-team/" class="page-cta" target="_blank">
+        <a href="https://jotter.gitbook.io/red-team/" class="page-cta" target="_blank" rel="noopener noreferrer">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
           </svg>
-          View Notes
+          Field notes
         </a>
-        <a href="https://github.com/jakeotte" class="page-cta" target="_blank">
+        <a href="https://github.com/jakeotte" class="page-cta" target="_blank" rel="noopener noreferrer">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/>
           </svg>
@@ -89,9 +133,9 @@
         <div class="footer-nav">
           <a href="index.html">Home</a>
           <a href="about.html">About</a>
-          <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+          <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
           <a href="contact.html">Contact</a>
-          <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+          <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
         <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
       </div>

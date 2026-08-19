@@ -20,37 +20,42 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png" />
-    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#a3e635" />
+    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#c9e3f6" />
 </head>
 
 <body class="page">
 
+    <a class="skip-link" href="#post-main">Skip to article</a>
     <canvas id="bg-canvas"></canvas>
 
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+                <h1>&gt; Jake Otte</h1>
                 <p class="tag">Offensive Security</p>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
-                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
                 <a href="../contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
     <main id="post-main">
-        <div class="post-view-header">
-            <a href="../index.html" class="post-back-btn">← All Posts</a>
-            <span class="post-read-time">7 min read</span>
-        </div>
         <div class="post-view-content">
+            <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
             <article class="post-article">
-                <h1>Bookmarklets as XSS Attack Vectors</h1>
-                <p class="post-meta">June 9, 2024</p>
+                <header class="post-heading">
+                    <h1>Bookmarklets as XSS Attack Vectors</h1>
+                    <div class="post-meta">
+                        <time datetime="2024-06-09">June 9, 2024</time>
+                        <span aria-hidden="true">·</span>
+                        <span>7 min read</span>
+                    </div>
+                    <p class="post-deck">Analysis of a real-world attack using browser bookmarklets to bypass CORS protections and steal Roblox account credentials.</p>
+                </header>
                 <div class="post-body"><p>If you’re in the threat intelligence space, you’ve probably seen headlines about $1 billion dollar crypto heists pulled off by Lazarus group in North Korea. You’ve seen multi-million dollar deals being made for decrypting ransomware and infostealers with nine figures in estimated damages. What you probably haven’t seen is the cyber battlefield of children’s online gaming - particularly a game called Roblox.</p>
 <h2>The Target</h2>
 <p>The best time to start investing was yesterday, but getting started at 10 years old works too. My friend Gary started investing in fifth grade, spending his free time flipping and trading assets while everyone else was watching Disney channel. Although there’s a catch - Gary was trading collectible virtual items on Roblox, not futures or securities (I suppose it’s the best a 10 year old can get).</p>
@@ -146,9 +151,9 @@ the link-button onto your bookmarks bar.</p>
                 <div class="footer-nav">
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
-                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
                     <a href="../contact.html">Contact</a>
-                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                    <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
                 </div>
                 <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
             </div>

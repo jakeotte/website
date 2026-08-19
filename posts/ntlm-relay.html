@@ -20,37 +20,42 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png" />
-    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#a3e635" />
+    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#c9e3f6" />
 </head>
 
 <body class="page">
 
+    <a class="skip-link" href="#post-main">Skip to article</a>
     <canvas id="bg-canvas"></canvas>
 
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+                <h1>&gt; Jake Otte</h1>
                 <p class="tag">Offensive Security</p>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
-                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
                 <a href="../contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
     <main id="post-main">
-        <div class="post-view-header">
-            <a href="../index.html" class="post-back-btn">← All Posts</a>
-            <span class="post-read-time">8 min read</span>
-        </div>
         <div class="post-view-content">
+            <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
             <article class="post-article">
-                <h1>Please, Please, Please Stop Getting NTLM Relayed</h1>
-                <p class="post-meta">June 11, 2025</p>
+                <header class="post-heading">
+                    <h1>Please, Please, Please Stop Getting NTLM Relayed</h1>
+                    <div class="post-meta">
+                        <time datetime="2025-06-11">June 11, 2025</time>
+                        <span aria-hidden="true">·</span>
+                        <span>8 min read</span>
+                    </div>
+                    <p class="post-deck">Understanding NTLM relay attacks and how to properly secure your network against them across various protocols.</p>
+                </header>
                 <div class="post-body"><p><em>Note: This article and associated tool was written before the updates to Netexec and the release of RelayInformer. Better tools and methodologies now exist to enumerate insecure configurations in your environment.</em></p>
 <h2>(In)Secure Defaults</h2>
 <p>This guide article is intended to help sysadmins get control of NTLM authentication in their AD environments. Unfortunately, Microsoft has made sure that the door to your domain is wide open for attackers by default. Virtually every network penetration test I have conducted has resulted in one (or all) of the following issues, all rooting from default configurations using NTLM authentication. Each protocol can be exploited for different impact, but they can all be fixed via GPO or manual configuration.</p>
@@ -58,10 +63,7 @@
 <p>I will keep this overview high-level - the NTLM relay attack has been explained in great technical depth by many other blogs (see <a href="https://www.vaadata.com/blog/understanding-ntlm-authentication-and-ntlm-relay-attacks/">here</a>).</p>
 <p>As a sysadmin securing your environment, all you need to know is that attackers on your network are able to intercept authentication traffic (password hashes, basically) from end users through a variety of means. They can then forward the authentication traffic through a number of protocols (SMB, LDAP, MSSQL, etc) to one of your organization’s servers to interact with it <strong>as the intercepted user</strong>.</p>
 <p>For example, say Bob from accounting attempts to access the file share hosted on the server <code>FILES-01</code>. An attacker on your network can say “Hey, I am <code>FILES-01</code>! Authenticate to me.” to intercept Bob’s authentication. The attacker can then forward Bob’s authentication attempt to your server <code>DC-01</code> to interact with the Domain Controller, access sensitive information, and do a variety of other actions.</p>
-<blockquote>
-<p><img src="../assets/img/ntlm/relay.png" alt="relay">
-<em>The NTLM authentication relay attack.</em></p>
-</blockquote>
+<figure><img src="../assets/img/ntlm/relay.png" alt="relay"><figcaption>The NTLM authentication relay attack.</figcaption></figure>
 <p>Let’s take a look at the various protocols attackers can forward authentication to, what the potential impacts are, and how to fix each one in your environment.</p>
 <h2>Step 0: SMB</h2>
 <blockquote>
@@ -74,15 +76,9 @@
 <h3>Fix</h3>
 </blockquote>
 <p>Unauthenticated access to network file shares and SYSTEM level shells are never good. Luckily, SMB signing can be easily enabled and enforced via GPO under <code>Computer Configuration\Windows Settings\Security Settings\Local Policies\Security Options --&gt; Microsoft network client/server: Digitally sign communications (always)</code>. Set the value to <code>Enabled</code> and push the GPO update.</p>
-<blockquote>
-<p><img src="../assets/img/ntlm/smb_gpo.png" alt="smb_gpo">
-<em>SMB signing GPO options.</em></p>
-</blockquote>
+<figure><img src="../assets/img/ntlm/smb_gpo.png" alt="smb_gpo"><figcaption>SMB signing GPO options.</figcaption></figure>
 <p>You can verify that SMB signing is required as both a client and server on any system with the commandlets <code>Get-SmbClientConfiguration | FL RequireSecuritySignature</code> and <code>Get-SmbServerConfiguration | FL RequireSecuritySignature</code>.</p>
-<blockquote>
-<p><img src="../assets/img/ntlm/smb_pshell.png" alt="smb_pshell">
-<em>Querying SMB signing configuration with PowerShell.</em></p>
-</blockquote>
+<figure><img src="../assets/img/ntlm/smb_pshell.png" alt="smb_pshell"><figcaption>Querying SMB signing configuration with PowerShell.</figcaption></figure>
 <p>See <a href="https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-signing?tabs=group-policy">Microsoft’s article</a> for more details.</p>
 <h2>Step 1: ADCS</h2>
 <blockquote>
@@ -96,16 +92,10 @@
 </blockquote>
 <p>Fortunately (or perhaps unfortunately), this attack is so brutal that Microsoft themselves have <a href="https://support.microsoft.com/en-us/topic/kb5005413-mitigating-ntlm-relay-attacks-on-active-directory-certificate-services-ad-cs-3612b773-4043-4aa9-b23d-b87910cd3429">published a guide</a> to fix it.</p>
 <p>Microsoft recommends enabling Extended Protection for Authentication (EPA) on IIS servers hosting Certificate Services. EPA relies on TLS, meaning you will need to disable HTTP entirely to use this feature. It’s available in the IIS management panel, under the <code>CertSrv</code> site’s <code>Authentication</code> menu:</p>
-<blockquote>
-<p><img src="../assets/img/ntlm/adcs_epa.png" alt="adcs_epa">
-<em>Extended Protection for Authentication on an ADCS server</em></p>
-</blockquote>
+<figure><img src="../assets/img/ntlm/adcs_epa.png" alt="adcs_epa"><figcaption>Extended Protection for Authentication on an ADCS server</figcaption></figure>
 <p>HTTPS can be required for the IIS server under the <code>SSL Settings</code> menu.</p>
 <p>However, it is not uncommon for legacy environments to rely on HTTP. The additional mitigation provided by Microsoft is what I recommend - remove NTLM as an authentication provider entirely and replace it with <code>Negotiate:Kerberos</code>. Replacing NTLM will force your Certificate Authority’s web server to rely on Kerberos, a more secure authentication protocol that is significantly harder to conduct relay attacks against. The list of authentication providers can be viewed and edited from the IIS manager under the <code>Providers...</code> right-click menu. Please make sure to update both the <code>CertSrv</code> and <code>[YOUR CA NAME HERE]-CA_CES_Kerberos</code> IIS sites!</p>
-<blockquote>
-<p><img src="../assets/img/ntlm/adcs_auth.png" alt="adcs_auth">
-<em>Kerberos authentication on an ADCS server</em></p>
-</blockquote>
+<figure><img src="../assets/img/ntlm/adcs_auth.png" alt="adcs_auth"><figcaption>Kerberos authentication on an ADCS server</figcaption></figure>
 <p>Note that replacing NTLM with just <code>Negotiate</code> is not enough! <code>Negotiate</code> will fall back to NTLM in certain situations; <code>Negotiate:Kerberos</code> will only ever use Kerberos after negotiation.</p>
 <h2>Step 2: LDAP</h2>
 <blockquote>
@@ -118,10 +108,7 @@
 <h3>Fix</h3>
 </blockquote>
 <p>Microsoft has released GPO options to enforce message signing for LDAP connections and channel binding for LDAPS connections. These can be found under the <code>Default Domain Controllers Policy</code> at <code>Computer Configuration\Windows Settings\Security Settings\Local Policies\Security Options</code>, with settings <code>Domain controller: LDAP server signing requirements</code> and <code>Domain controller: LDAP server channel binding token requirements</code>.</p>
-<blockquote>
-<p><img src="../assets/img/ntlm/ldap_gpo.png" alt="adcs_auth">
-<em>LDAP signing GPO settings</em></p>
-</blockquote>
+<figure><img src="../assets/img/ntlm/ldap_gpo.png" alt="adcs_auth"><figcaption>LDAP signing GPO settings</figcaption></figure>
 <h2>Step 3: MSSQL</h2>
 <blockquote>
 <h3>Impact</h3>
@@ -133,20 +120,12 @@
 <h3>Fix</h3>
 </blockquote>
 <p>Luckily, the MSSQL protocol supports Extended Protection for Authentication (EPA) which can be enabled through the SQL Server Configuration Manager window. Recall that EPA requires TLS encryption of the communication channel - we’ll need to require both <code>Force Encryption</code> and <code>Extended Protection</code> for each SQL server:</p>
-<blockquote>
-<p><img src="../assets/img/ntlm/sql_1.png" alt="sql_1">
-<em>MSSQL server Force Encryption setting</em></p>
-</blockquote>
-<blockquote>
-<p><img src="../assets/img/ntlm/sql_2.png" alt="sql_2">
-<em>MSSQL server Extended PRotection for Authentication setting</em></p>
-</blockquote>
+<figure><img src="../assets/img/ntlm/sql_1.png" alt="sql_1"><figcaption>MSSQL server Force Encryption setting</figcaption></figure>
+<figure><img src="../assets/img/ntlm/sql_2.png" alt="sql_2"><figcaption>MSSQL server Extended PRotection for Authentication setting</figcaption></figure>
 <p><strong>Credit to subat0mik for these screenshots.</strong></p>
 <h2>Tango</h2>
 <p>I developed a simple script to rapidly identify relaying targets in client environments called <a href="https://github.com/jakeotte/tango">Tango</a>. Provided a nameserver (often a Domain Controller), subnet range(s), and domain name, the script will search for LDAP/LDAPS signing failures, potential ADCS relay targets, and any available MSSQL servers. I have saved a huge amount of time on internal tests with it thus far - give it a try and see what holes need to be patched in your environment!</p>
-<blockquote>
-<p><img src="../assets/img/ntlm/tango.png" alt="tango"></p>
-</blockquote>
+<figure><img src="../assets/img/ntlm/tango.png" alt="tango"></figure>
 </div>
             </article>
             <div class="post-nav">
@@ -168,9 +147,9 @@
                 <div class="footer-nav">
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
-                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
                     <a href="../contact.html">Contact</a>
-                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                    <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
                 </div>
                 <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
             </div>

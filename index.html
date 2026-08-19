@@ -4,23 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jake Otte – Offensive Security</title>
-    <meta name="description" content="Jake Otte — offensive security engineer. Posts on pentesting techniques, evasion research, and things worth documenting." />
+    <meta name="description" content="Jake Otte — red team operator writing about Windows tradecraft, cloud and Active Directory attack paths, evasion, and offensive security research." />
     <meta property="og:title" content="Jake Otte – Offensive Security" />
-    <meta property="og:description" content="Jake Otte — offensive security engineer. Posts on pentesting techniques, evasion research, and things worth documenting." />
+    <meta property="og:description" content="Jake Otte — red team operator writing about Windows tradecraft, cloud and Active Directory attack paths, evasion, and offensive security research." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://jakeotte.com" />
-    <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
+    <meta property="og:image" content="https://jakeotte.com/assets/og.png" />
     <meta property="og:site_name" content="Jake Otte" />
     <link rel="canonical" href="https://jakeotte.com" />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Jake Otte – Offensive Security" />
-    <meta name="twitter:description" content="Jake Otte — offensive security engineer. Posts on pentesting techniques, evasion research, and things worth documenting." />
+    <meta name="twitter:description" content="Jake Otte — red team operator writing about Windows tradecraft, cloud and Active Directory attack paths, evasion, and offensive security research." />
+    <meta name="twitter:image" content="https://jakeotte.com/assets/og.png" />
     <link rel="stylesheet" href="style.css" />
     <link rel="icon" href="assets/img/favicons/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicons/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicons/apple-touch-icon.png" />
-    <link rel="mask-icon" href="assets/img/favicons/safari-pinned-tab.svg" color="#a3e635" />
+    <link rel="mask-icon" href="assets/img/favicons/safari-pinned-tab.svg" color="#c9e3f6" />
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -29,10 +30,10 @@
         "url": "https://jakeotte.com",
         "image": "https://jakeotte.com/assets/square.jpg",
         "jobTitle": "Red Team Operator",
-        "description": "Offensive security engineer specializing in Windows post-exploitation, hybrid attack paths, and malwareless red teaming.",
+        "description": "Red team operator working across cloud, Active Directory, internal networks, and web applications, with a focus on Windows post-exploitation and evasion.",
         "sameAs": [
             "https://github.com/jakeotte",
-            "https://linkedin.com/in/jakeotte"
+            "https://linkedin.com/in/jake-otte"
         ],
         "hasCredential": [
             { "@type": "EducationalOccupationalCredential", "name": "OSCP" },
@@ -47,61 +48,67 @@
 
 <body class="index">
 
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <canvas id="bg-canvas"></canvas>
 
     <header>
         <div class="header-top">
             <a class="brand" href="index.html">
-                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+                <h1>&gt; Jake Otte</h1>
                 <p class="tag">Offensive Security</p>
             </a>
             <nav class="nav">
                 <a href="index.html" class="active">Home</a>
                 <a href="about.html">About</a>
-                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
                 <a href="contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
-    <main class="index-layout">
+    <main class="home-shell" id="main-content">
+
+        <div class="index-layout">
 
         <!-- Sidebar -->
         <aside class="sidebar">
-            <img class="sidebar-avatar" src="assets/square.jpg" alt="Jake Otte" />
-            <h2 class="sidebar-name">Jake Otte</h2>
-            <p class="sidebar-role">Red Team Operator</p>
-            <p class="sidebar-bio">Pentesting and evasion research. This site is where I write up things I find interesting.</p>
+            <div class="sidebar-identity">
+                <img class="sidebar-avatar" src="assets/square.jpg" alt="Jake Otte" />
+                <div>
+                    <h2 class="sidebar-name">Jake Otte</h2>
+                    <p class="sidebar-role">Red Team Operator</p>
+                </div>
+            </div>
+            <p class="sidebar-bio">Red team operator working across cloud, Active Directory, internal networks, and web applications. I write about Windows tradecraft, identity, and evasion.</p>
             <div class="sidebar-contact">
                 <p class="sidebar-contact-label">Contact:</p>
                 <a class="sidebar-email" href="mailto:jake123otte1@gmail.com">jake123otte1@gmail.com</a>
                 <div class="sidebar-socials">
-                    <a href="https://github.com/jakeotte" target="_blank" aria-label="GitHub">
+                    <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.605-2.665-.305-5.467-1.334-5.467-5.93 0-1.31.467-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
                     </a>
-                    <a href="https://linkedin.com/in/jakeotte" target="_blank" aria-label="LinkedIn">
+                    <a href="https://linkedin.com/in/jake-otte" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zM7.119 20.452H3.554V9h3.565v11.452z"/></svg>
                     </a>
                 </div>
             </div>
-            <nav class="sidebar-links">
-                <a href="about.html">About</a>
-                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
-                <a href="contact.html">Contact</a>
-            </nav>
         </aside>
 
         <!-- Posts feed -->
         <div class="feed">
-            <div class="section-header">
-                <h3 class="section-title">Research &amp; Posts</h3>
+            <div class="section-header" id="research">
+                <h3 class="section-title"><span>Research</span> &amp; Posts</h3>
                 <p class="section-subtitle" id="post-count">8 posts</p>
             </div>
             <div id="posts">
         <!-- BEGIN:POSTS -->
-        <a class="post" href="posts/klist-revisited.html">
+        <a class="post featured" href="posts/klist-revisited.html">
             <div class="post-header">
-                <span class="post-date">Jun 30, 2026</span>
+                <div class="post-details">
+                    <time class="post-date" datetime="2026-06-30">Jun 30, 2026</time>
+                    <span class="post-meta-separator" aria-hidden="true">·</span>
+                    <span class="post-card-read-time">4 min read</span>
+                </div>
                 <span class="post-arrow">→</span>
             </div>
             <p class="post-title">klist.exe Revisited: Internals and Further Use Cases</p>
@@ -112,7 +119,11 @@
         </a>
         <a class="post" href="posts/klist-lolbin.html">
             <div class="post-header">
-                <span class="post-date">Mar 10, 2026</span>
+                <div class="post-details">
+                    <time class="post-date" datetime="2026-03-10">Mar 10, 2026</time>
+                    <span class="post-meta-separator" aria-hidden="true">·</span>
+                    <span class="post-card-read-time">8 min read</span>
+                </div>
                 <span class="post-arrow">→</span>
             </div>
             <p class="post-title">Abusing klist.exe for Kerberos Post-Exploitation</p>
@@ -123,7 +134,11 @@
         </a>
         <a class="post" href="posts/splashtop-c2.html">
             <div class="post-header">
-                <span class="post-date">Dec 8, 2025</span>
+                <div class="post-details">
+                    <time class="post-date" datetime="2025-12-08">Dec 8, 2025</time>
+                    <span class="post-meta-separator" aria-hidden="true">·</span>
+                    <span class="post-card-read-time">5 min read</span>
+                </div>
                 <span class="post-arrow">→</span>
             </div>
             <p class="post-title">No More Implants: User's Guide to Splashtop C2</p>
@@ -134,7 +149,11 @@
         </a>
         <a class="post" href="posts/password-spraying-manageengine.html">
             <div class="post-header">
-                <span class="post-date">Nov 15, 2025</span>
+                <div class="post-details">
+                    <time class="post-date" datetime="2025-11-15">Nov 15, 2025</time>
+                    <span class="post-meta-separator" aria-hidden="true">·</span>
+                    <span class="post-card-read-time">3 min read</span>
+                </div>
                 <span class="post-arrow">→</span>
             </div>
             <p class="post-title">Password Spraying ManageEngine and Other RSA-protected Logins</p>
@@ -145,7 +164,11 @@
         </a>
         <a class="post" href="posts/ntlm-relay.html">
             <div class="post-header">
-                <span class="post-date">Jun 11, 2025</span>
+                <div class="post-details">
+                    <time class="post-date" datetime="2025-06-11">Jun 11, 2025</time>
+                    <span class="post-meta-separator" aria-hidden="true">·</span>
+                    <span class="post-card-read-time">8 min read</span>
+                </div>
                 <span class="post-arrow">→</span>
             </div>
             <p class="post-title">Please, Please, Please Stop Getting NTLM Relayed</p>
@@ -156,29 +179,41 @@
         </a>
         <a class="post" href="posts/wazuh-sysmon-ldap.html">
             <div class="post-header">
-                <span class="post-date">Apr 25, 2025</span>
+                <div class="post-details">
+                    <time class="post-date" datetime="2025-04-25">Apr 25, 2025</time>
+                    <span class="post-meta-separator" aria-hidden="true">·</span>
+                    <span class="post-card-read-time">6 min read</span>
+                </div>
                 <span class="post-arrow">→</span>
             </div>
             <p class="post-title">Extending Wazuh with Sysmon and LDAP</p>
             <div class="post-excerpt-wrap">
-                <p class="post-excerpt">Wazuh SIEM Dashboard</p>
+                <p class="post-excerpt">How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging.</p>
                 <div class="post-excerpt-fade"></div>
             </div>
         </a>
         <a class="post" href="posts/amsi-bypasses.html">
             <div class="post-header">
-                <span class="post-date">Jun 17, 2024</span>
+                <div class="post-details">
+                    <time class="post-date" datetime="2024-06-17">Jun 17, 2024</time>
+                    <span class="post-meta-separator" aria-hidden="true">·</span>
+                    <span class="post-card-read-time">4 min read</span>
+                </div>
                 <span class="post-arrow">→</span>
             </div>
             <p class="post-title">AMSI Bypasses and PowerShell Obfuscation</p>
             <div class="post-excerpt-wrap">
-                <p class="post-excerpt">AMSI, or Anti Malware Scanning Interface, is what Windows uses to detect malware contained in scripts. Scripts may be downloaded remotely and executed only from memory, thereby never touching disk. Windows Defender</p>
+                <p class="post-excerpt">Understanding AMSI's role in script detection and techniques for bypassing it through PowerShell obfuscation.</p>
                 <div class="post-excerpt-fade"></div>
             </div>
         </a>
         <a class="post" href="posts/bookmarklets-xss.html">
             <div class="post-header">
-                <span class="post-date">Jun 9, 2024</span>
+                <div class="post-details">
+                    <time class="post-date" datetime="2024-06-09">Jun 9, 2024</time>
+                    <span class="post-meta-separator" aria-hidden="true">·</span>
+                    <span class="post-card-read-time">7 min read</span>
+                </div>
                 <span class="post-arrow">→</span>
             </div>
             <p class="post-title">Bookmarklets as XSS Attack Vectors</p>
@@ -190,6 +225,7 @@
         <!-- END:POSTS -->
         </div>
         </div>
+        </div>
 
     </main>
 
@@ -199,9 +235,9 @@
                 <div class="footer-nav">
                     <a href="index.html">Home</a>
                     <a href="about.html">About</a>
-                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
                     <a href="contact.html">Contact</a>
-                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                    <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
                 </div>
                 <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
             </div>

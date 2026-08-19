@@ -20,37 +20,42 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png" />
-    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#a3e635" />
+    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#c9e3f6" />
 </head>
 
 <body class="page">
 
+    <a class="skip-link" href="#post-main">Skip to article</a>
     <canvas id="bg-canvas"></canvas>
 
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+                <h1>&gt; Jake Otte</h1>
                 <p class="tag">Offensive Security</p>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
-                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
                 <a href="../contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
     <main id="post-main">
-        <div class="post-view-header">
-            <a href="../index.html" class="post-back-btn">← All Posts</a>
-            <span class="post-read-time">6 min read</span>
-        </div>
         <div class="post-view-content">
+            <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
             <article class="post-article">
-                <h1>Extending Wazuh with Sysmon and LDAP</h1>
-                <p class="post-meta">April 25, 2025</p>
+                <header class="post-heading">
+                    <h1>Extending Wazuh with Sysmon and LDAP</h1>
+                    <div class="post-meta">
+                        <time datetime="2025-04-25">April 25, 2025</time>
+                        <span aria-hidden="true">·</span>
+                        <span>6 min read</span>
+                    </div>
+                    <p class="post-deck">How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging.</p>
+                </header>
                 <div class="post-body"><p><img src="../assets/img/wazuh/wazuh.jpg" alt="Wazuh Dashboard">
 <em>Wazuh SIEM Dashboard</em></p>
 <h2>Wazuh</h2>
@@ -183,9 +188,9 @@ made from compromised user sessions - typically through a phishing payload:</p>
                 <div class="footer-nav">
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
-                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
                     <a href="../contact.html">Contact</a>
-                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                    <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
                 </div>
                 <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
             </div>

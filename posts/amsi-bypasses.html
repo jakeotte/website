@@ -20,38 +20,43 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png" />
-    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#a3e635" />
+    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#c9e3f6" />
 </head>
 
 <body class="page">
 
+    <a class="skip-link" href="#post-main">Skip to article</a>
     <canvas id="bg-canvas"></canvas>
 
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+                <h1>&gt; Jake Otte</h1>
                 <p class="tag">Offensive Security</p>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
-                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
                 <a href="../contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
     <main id="post-main">
-        <div class="post-view-header">
-            <a href="../index.html" class="post-back-btn">← All Posts</a>
-            <span class="post-read-time">4 min read</span>
-        </div>
         <div class="post-view-content">
+            <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
             <article class="post-article">
-                <h1>AMSI Bypasses and PowerShell Obfuscation</h1>
-                <p class="post-meta">June 17, 2024</p>
-                <div class="post-body"><h1>Introduction to AMSI</h1>
+                <header class="post-heading">
+                    <h1>AMSI Bypasses and PowerShell Obfuscation</h1>
+                    <div class="post-meta">
+                        <time datetime="2024-06-17">June 17, 2024</time>
+                        <span aria-hidden="true">·</span>
+                        <span>4 min read</span>
+                    </div>
+                    <p class="post-deck">Understanding AMSI's role in script detection and techniques for bypassing it through PowerShell obfuscation.</p>
+                </header>
+                <div class="post-body"><h2>Introduction to AMSI</h2>
 <p>AMSI, or Anti Malware Scanning Interface, is what Windows uses to detect malware contained in scripts. Scripts may be downloaded remotely and executed only from memory, thereby never touching disk. Windows Defender
 has the ability to routinely scan any downloaded or created file for signatures of malware, but it doesn’t necessarily have this capability for scanning malware executed solely in process memory. AMSI solves this
 problem.</p>
@@ -60,19 +65,19 @@ the machine’s antivirus solution (often Windows Defender) and thoroughly inspe
 machine.</p>
 <p><img src="../assets/img/amsi/powershell.png" alt="PowerShell modules list">
 <em>PowerShell modules showing AMSI integration</em></p>
-<h1>Breaking AMSI</h1>
+<h2>Breaking AMSI</h2>
 <p>This bridge can be broken in a variety of ways. <code>Amsi.dll</code> is loaded into the memory of a process you control, and as such the contents of it may be changed at will. If you are able to successfully alter the contents
 of AMSI-related functions or variables, you may be able to ignore the antivirus solution entirely and load as many malicious scripts as you would like. Note that in some cases, particularly EDR solutions, <em>process</em>
 heuristics may be analyzed to determine if your activities are malicious, regardless of the contents of process memory.</p>
 <p>The methods for corrupting AMSI memory in order to bypass it change nearly every week nowadays. Participating in the cat-and-mouse game of defeating AMSI is outside the scope of this post - instead, we will discuss
 practically using and altering existing bypasses.</p>
-<h1>Existing Bypasses</h1>
+<h2>Existing Bypasses</h2>
 <p>Attempting to load any malicious script in a standard security configuration will likely result in this familiar message:</p>
 <p><img src="../assets/img/amsi/blocked.png" alt="Blocked"></p>
 <p>It would seem that AMSI has detected something in our script that appears malicious. In order to break AMSI, we can use any number of <a href="https://github.com/S3cur3Th1sSh1t/Amsi-Bypass-Powershell">existing bypasses</a>. If
 we are lucky, an existing bypass will not be detected by Defender and we may corrupt the AMSI module in our process. Afterwards, we may execute any malicious script we want:</p>
 <p><img src="../assets/img/amsi/bypass.png" alt="Bypass"></p>
-<h1>Modifying Bypasses with AMSITrigger</h1>
+<h2>Modifying Bypasses with AMSITrigger</h2>
 <p>Unfortunately, getting an AMSI bypass to work out of the box is far from common. Most bypasses have been around long enough to be signatured in some capacity by Windows Defender or other antivirus solutions, and as
 such won’t be able to free your process from the loaded DLL. In these cases, we will need to modify and obfuscate our AMSI bypass scripts. A fantastic tool for this process is <a href="https://github.com/RythmStick/AMSITrigger">AMSITrigger</a>.</p>
 <p>AMSITrigger works by breaking your script or code block down into chunks before ‘feeding’ them to AMSI via temporary files. If AMSI triggers an alert on a temporary file, we know that a problem exists within a
@@ -83,7 +88,7 @@ for sure which string we need to alter. I recommend substituting strings you may
 code block, I found that <code>WriteProcessMemory</code> was causing problems, as can be seen from my clever substitution with <code>AAAAAAAAAAAAAAAAAA</code>:</p>
 <p><img src="../assets/img/amsi/amsitrigger2.png" alt="AMSITrigger2"></p>
 <p>Now we will need to obfuscate the <code>WriteProcessMemory</code> string.</p>
-<h1>Obfuscating PowerShell Strings</h1>
+<h2>Obfuscating PowerShell Strings</h2>
 <p>There’s a lot of ways to hide strings in PowerShell. We can base-64 encode them:</p>
 <p><img src="../assets/img/amsi/base64.png" alt="base64"></p>
 <p>Reverse them:</p>
@@ -122,7 +127,7 @@ $code = $code + @&quot;
 <p>And check with AMSITrigger once more:</p>
 <p><img src="../assets/img/amsi/win.png" alt="win"></p>
 <p>Success! We have generated a custom obfuscated AMSI bypass. We can now load this bypass script into memory before executing malicious scripts without any issue.</p>
-<h1>Conclusion</h1>
+<h2>Conclusion</h2>
 <p>Bypassing AMSI and understanding how to generate custom obfuscated bypasses is essential for any red teamer’s toolkit. The techniques I’ve presented above are the tip of the iceberg when it comes to payload
 development. Attacking an environment protected by a sound security infrastructure and endpoint agents will be much trickier - you will need to consider heuristic analysis and other factors beyond simply strings. I
 recommend getting a hold of whatever EDR you are going up against and running AMSITrigger through it before dropping any payloads. Over time, you will attain quite a collection of very sneaky scripts!</p>
@@ -147,9 +152,9 @@ recommend getting a hold of whatever EDR you are going up against and running AM
                 <div class="footer-nav">
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
-                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
                     <a href="../contact.html">Contact</a>
-                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                    <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
                 </div>
                 <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
             </div>

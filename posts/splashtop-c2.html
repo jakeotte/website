@@ -20,51 +20,50 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png" />
-    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#a3e635" />
+    <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#c9e3f6" />
 </head>
 
 <body class="page">
 
+    <a class="skip-link" href="#post-main">Skip to article</a>
     <canvas id="bg-canvas"></canvas>
 
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte<span class="cursor"></span></h1>
+                <h1>&gt; Jake Otte</h1>
                 <p class="tag">Offensive Security</p>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
-                <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
                 <a href="../contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
     <main id="post-main">
-        <div class="post-view-header">
-            <a href="../index.html" class="post-back-btn">← All Posts</a>
-            <span class="post-read-time">5 min read</span>
-        </div>
         <div class="post-view-content">
+            <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
             <article class="post-article">
-                <h1>No More Implants: User's Guide to Splashtop C2</h1>
-                <p class="post-meta">December 8, 2025</p>
+                <header class="post-heading">
+                    <h1>No More Implants: User's Guide to Splashtop C2</h1>
+                    <div class="post-meta">
+                        <time datetime="2025-12-08">December 8, 2025</time>
+                        <span aria-hidden="true">·</span>
+                        <span>5 min read</span>
+                    </div>
+                    <p class="post-deck">Exploring why simple, legitimate remote-access tools like Splashtop often outperform custom implants in real red team operations and adversary emulation.</p>
+                </header>
                 <div class="post-body"><p>There’s a belief in offensive security that impactful red team operations hinge on robust implants, custom C2 profiles, and elaborate execution chains. Entire corners of the industry orbit around loader development, obfuscated payloads, and whatever new post-ex update Cobalt Strike pushed last month.</p>
 <p>Recently I took some time to look at the other side of the offensive spectrum - one far more common in real intrusions and involving far less shellcode. This was partly inspired by Any.Run’s article on <a href="https://any.run/cybersecurity-blog/lazarus-group-it-workers-investigation/">Lazarus Group’s TTPs</a>, which highlights an almost complete absence of custom malware in favor of legitimate remote-access tools like TeamViewer and Chrome Remote Desktop.</p>
-<blockquote>
-<p><img src="../assets/img/splashtop/lazarus.png" alt="Splashtop monitoring">
-<em>AnyDesk RMM in use by real Lazarus group operators.</em></p>
-</blockquote>
+<figure><img src="../assets/img/splashtop/lazarus.png" alt="Splashtop monitoring"><figcaption>AnyDesk RMM in use by real Lazarus group operators.</figcaption></figure>
 <p>From an operational standpoint, this preference isn’t surprising. Signed binaries with massive enterprise footprints are inherently low-risk from a detection perspective; quarantining or killing a remote-access tool can halt helpdesk work, disrupt production systems, or take critical endpoints offline. EDR engines and junior SOC analysts alike tend to tread carefully around software the organization depends on.</p>
 <p>The real drawback for adversaries and red team operators has traditionally been control. Yes - legitimate RMM software will often bypass EDR by default, but drop it on the wrong workstation or launch a session at the wrong time and you won’t be bypassing the SOC lead watching your moves in real time. Many RMM tools are also limited, clunky, or missing features operators want from a C2.</p>
 <h2>Malware is a Liability</h2>
 <p>In most breaches, the role of malware is far less than people expect. Custom implants are either introduced late in the operation or never deployed at all - attackers simply don’t need them.</p>
-<blockquote>
-<p><img src="../assets/img/splashtop/cobalt.jpg" alt="Splashtop monitoring">
-<em>The user interface for Cobalt Strike, a popular C2 choice for adversaries.</em></p>
-</blockquote>
+<figure><img src="../assets/img/splashtop/cobalt.jpg" alt="Splashtop monitoring"><figcaption>The user interface for Cobalt Strike, a popular C2 choice for adversaries.</figcaption></figure>
 <p>Often times, custom-built malware is simply a liability. Every injected thread, every non-standard memory allocation, every staged payload introduces forensic noise and increases the risk of detection. A signed remote-access application with a massive enterprise footprint, on the other hand, blends into operational baselines and forces defenders to distinguish malicious use from normal administrative activity—a far harder task. This is why so many real-world intrusions lean on legitimate remote-access tooling. It’s not a lack of sophistication or development knowledge; it’s a reflection of operational priorities.</p>
 <h2>Splashtop as C2</h2>
 <p>I reviewed several candidates for “RMM-as-C2”, most taken directly from IR reports or public writeups detailing their abuse. The vast majority of available tools expose the same
@@ -72,22 +71,13 @@ set of management features and onboarding procedures. Additionally, their “det
 agent installation.</p>
 <p>The differences begin to manifest when considering the ease of persistent access to machines - some RMM tools simply don’t allow unattended access at all. Others require
 a valid Windows logon, and others may only permit GUI-based interaction when a user is already logged in.</p>
-<blockquote>
-<p><img src="../assets/img/splashtop/splash3.jpeg" alt="Splashtop monitoring">
-<em>Splashtop for Business enables remote administration of workstations.</em></p>
-</blockquote>
+<figure><img src="../assets/img/splashtop/splash3.jpeg" alt="Splashtop monitoring"><figcaption>Splashtop for Business enables remote administration of workstations.</figcaption></figure>
 <p>Splashtop, however, carries a unique passive monitoring functionality that lends itself to more sophisticated and stealthy operations.</p>
 <h2>The Usual Features</h2>
 <p>Like most remote-access platforms, Splashtop exposes a typical set of capabilities: full GUI streaming, clipboard sync, screen control, and a built-in chat interface (I guess if you want to just ask the victim for their password). None of this is remarkable on its own - nearly every RMM solution on the market offers similar functionality.</p>
-<blockquote>
-<p><img src="../assets/img/splashtop/chat.png" alt="Splashtop monitoring">
-<em>Clever social engineering tricks performed by elite nation-state operators.</em></p>
-</blockquote>
+<figure><img src="../assets/img/splashtop/chat.png" alt="Splashtop monitoring"><figcaption>Clever social engineering tricks performed by elite nation-state operators.</figcaption></figure>
 <p>From a red team op standpoint, the screen control feature is not ideal. Access during a user session will display a pretty obvious watermark and notification tab. Maybe you can try out some social engineering, but that’s a bold move when you’ve already got an “implant”.</p>
-<blockquote>
-<p><img src="../assets/img/splashtop/splash.png" alt="Splashtop monitoring">
-<em>Clear-as-day watermark for interactive sessions.</em></p>
-</blockquote>
+<figure><img src="../assets/img/splashtop/splash.png" alt="Splashtop monitoring"><figcaption>Clear-as-day watermark for interactive sessions.</figcaption></figure>
 <p>Beyond this, Splashtop offers an extremely simple and streamlined onboarding process through a signed EXE binary. It won’t get much better than that for intial execution.</p>
 <h2>The Best Feature</h2>
 <p>Here’s the good part - Splashtop provides persistent, always-on background visibility into enrolled devices <strong>without initiating a session or interacting with the endpoint in any way</strong>. From the management console, you can see:</p>
@@ -97,17 +87,11 @@ a valid Windows logon, and others may only permit GUI-based interaction when a u
 <li>how long the device has been active/inactive</li>
 <li>whether the machine is sitting at the lock screen</li>
 </ul>
-<blockquote>
-<p><img src="../assets/img/splashtop/Screenshot%202025-12-08%20162353.png" alt="Splashtop monitoring">
-<em>Monitoring user activity without session notifications.</em></p>
-</blockquote>
+<figure><img src="../assets/img/splashtop/Screenshot%202025-12-08%20162353.png" alt="Splashtop monitoring"><figcaption>Monitoring user activity without session notifications.</figcaption></figure>
 <p>This kind of contextual awareness is operationally powerful. It allows defenders and red-team operators alike to understand when a machine is in use, when it’s idle, and when any interaction would be most likely to go unnoticed. Timing is one of the most underrated components of real intrusions, and Splashtop unintentionally surfaces that variable in a clean, low-friction way. Uniquely, this also allows operators to further emulate adversaries’ patterns for conducting attacks during specific off-hours windows.</p>
 <h2>Silent Execution</h2>
 <p>Splashtop also includes a built-in command terminal and a bidirectional file-transfer tool, both of which operate independently of a full GUI session. From an operator’s perspective, this matters because these features can be used in a quiet, low-visibility manner — especially when the <strong>endpoint is locked or sitting idle</strong>.</p>
-<blockquote>
-<p><img src="../assets/img/splashtop/splash2.png" alt="Splashtop monitoring">
-<em>Executing commands via Splashtop on an inactive machine.</em></p>
-</blockquote>
+<figure><img src="../assets/img/splashtop/splash2.png" alt="Splashtop monitoring"><figcaption>Executing commands via Splashtop on an inactive machine.</figcaption></figure>
 <p>These features combined with passive activity monitoring make attacks easy to time and hard to detect. I should know - I performed several malicious actions using signed binaries (LSASS dump, certificate requests, etc) and received <strong>no alerts from CrowdStrike and MDE EDR.</strong></p>
 <h2>Conclusion</h2>
 <p>Splashtop isn’t going to let you execute BOFs or dump LSASS alone, but its management and passive monitoring capabilities are extremely powerful tools packaged in a
@@ -136,9 +120,9 @@ undetected. But why do that when you can just install Splashtop?</p>
                 <div class="footer-nav">
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
-                    <a href="https://jotter.gitbook.io/red-team/" target="_blank">Notes</a>
+                    <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
                     <a href="../contact.html">Contact</a>
-                    <a href="https://github.com/jakeotte" target="_blank">GitHub</a>
+                    <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
                 </div>
                 <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
             </div>
