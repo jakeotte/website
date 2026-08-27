@@ -21,6 +21,16 @@ const ROOT_DIR  = __dirname;
 const posts = JSON.parse(fs.readFileSync(path.join(POSTS_DIR, 'index.json'), 'utf-8'));
 posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
+// External posts live on another site (e.g. the company blog). We render a
+// card that links out, but generate no local page and no sitemap entry.
+function postHref(post, fromIndex) {
+    if (post.external) return post.url;
+    return `${fromIndex ? 'posts/' : ''}${post.slug}.html`;
+}
+function postLinkAttrs(post) {
+    return post.external ? ' target="_blank" rel="noopener noreferrer"' : '';
+}
+
 function fmtLong(s) {
     return new Date(s + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long',  day: 'numeric' });
 }
@@ -70,6 +80,7 @@ function formatFigures(html) {
 // ── Generate post pages ────────────────────────────────────────────────────────
 
 posts.forEach((post, idx) => {
+    if (post.external) return; // no local page for off-site posts
     const mdPath = path.join(POSTS_DIR, post.file);
     if (!fs.existsSync(mdPath)) { console.warn(`SKIP (not found): ${post.file}`); return; }
 
@@ -83,15 +94,15 @@ posts.forEach((post, idx) => {
 
     const navHtml = `<div class="post-nav">
             ${prev
-                ? `<a href="${prev.slug}.html" class="post-nav-link post-nav-prev">
+                ? `<a href="${postHref(prev)}"${postLinkAttrs(prev)} class="post-nav-link post-nav-prev">
                 <span class="post-nav-dir">← Older</span>
                 <span class="post-nav-title">${esc(prev.title)}</span>
             </a>`
                 : '<span></span>'}
             ${next
-                ? `<a href="${next.slug}.html" class="post-nav-link post-nav-next">
+                ? `<a href="${postHref(next)}"${postLinkAttrs(next)} class="post-nav-link post-nav-next">
                 <span class="post-nav-dir">Newer →</span>
-                <span class="post-nav-title">${esc(next.title)}</span>
+                <span class="post-nav-title">${esc(next.title)}${next.external ? ' <span aria-hidden="true">↗</span>' : ''}</span>
             </a>`
                 : '<span></span>'}
         </div>`;
@@ -201,24 +212,27 @@ posts.forEach((post, idx) => {
 // ── Update index.html ──────────────────────────────────────────────────────────
 
 const postsHtml = posts.map((post, idx) => {
-    const mdPath   = path.join(POSTS_DIR, post.file);
-    const markdown = fs.existsSync(mdPath) ? fs.readFileSync(mdPath, 'utf-8') : '';
+    const mdPath   = post.external ? '' : path.join(POSTS_DIR, post.file);
+    const markdown = mdPath && fs.existsSync(mdPath) ? fs.readFileSync(mdPath, 'utf-8') : '';
     const opening  = markdown ? excerpt(markdown) : '';
-    const ex       = opening.length >= 100 && /[.!?][\"']?$/.test(opening.trim())
-        ? opening
-        : (post.summary || opening);
+    const ex       = post.external
+        ? (post.excerpt || post.summary || '')
+        : (opening.length >= 100 && /[.!?][\"']?$/.test(opening.trim()) ? opening : (post.summary || opening));
     const mins     = Math.max(1, Math.round(markdown.split(/\s+/).length / 200));
+    const metaHtml = post.external
+        ? `<span class="post-card-read-time">${esc(post.source || 'External')} <span aria-hidden="true">↗</span></span>`
+        : `<span class="post-card-read-time">${mins} min read</span>`;
     const excerptBlock = ex
         ? `\n            <div class="post-excerpt-wrap">\n                <p class="post-excerpt">${esc(ex)}</p>\n                <div class="post-excerpt-fade"></div>\n            </div>`
         : '';
-    return `        <a class="post${idx === 0 ? ' featured' : ''}" href="posts/${post.slug}.html">
+    return `        <a class="post${idx === 0 ? ' featured' : ''}" href="${postHref(post, true)}"${postLinkAttrs(post)}>
             <div class="post-header">
                 <div class="post-details">
                     <time class="post-date" datetime="${post.date}">${fmtShort(post.date)}</time>
                     <span class="post-meta-separator" aria-hidden="true">·</span>
-                    <span class="post-card-read-time">${mins} min read</span>
+                    ${metaHtml}
                 </div>
-                <span class="post-arrow">→</span>
+                <span class="post-arrow">${post.external ? '↗' : '→'}</span>
             </div>
             <p class="post-title">${esc(post.title)}</p>${excerptBlock}
         </a>`;
@@ -261,7 +275,7 @@ const staticUrls = [
     { loc: `${SITE}/about.html`,   lastmod: today },
     { loc: `${SITE}/contact.html`, lastmod: today },
 ];
-const postUrls = posts.map(post => ({
+const postUrls = posts.filter(post => !post.external).map(post => ({
     loc: `${SITE}/posts/${post.slug}.html`,
     lastmod: post.date,
 }));

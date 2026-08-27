@@ -1,5 +1,14 @@
 [
   {
+    "title": "PRTremote: Extract PRT Cookies Remotely with InteractiveToken Scheduled Tasks",
+    "external": true,
+    "url": "https://www.armadin.com/blog-posts/prtremote-extract-prt-cookies-remotely-with-interactivetoken-scheduled-task",
+    "source": "armadin.com",
+    "date": "2026-08-26",
+    "summary": "How TASK_LOGON_INTERACTIVE_TOKEN and BrowserCore.exe combine to extract a live PRT cookie over SMB.",
+    "excerpt": "Primary Refresh Tokens are the backbone of Entra ID Single Sign-On (SSO), with each one belonging to a single Windows logon session. Extracting one has traditionally meant getting code running inside that session: process injection or token theft, both heavily signatured, and both requiring malicious code to execute on the endpoint."
+  },
+  {
     "title": "klist.exe Revisited: Internals and Further Use Cases",
     "slug": "klist-revisited",
     "file": "2026-06-30-klist.exe Revisited - Internals and Further Use Cases.md",
