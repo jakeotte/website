@@ -191,7 +191,7 @@ const postsHtml = posts.map((post, idx) => {
                 <time class="post-date" datetime="${post.date}">${fmtShort(post.date)}</time>
                 <span class="post-card-read-time">${detail}</span>
             </div>
-            <p class="post-title">${esc(post.title)}</p>
+            <h3 class="post-title">${esc(post.title)}${post.external ? ' <span class="post-external" aria-label="(opens in a new tab)">↗</span>' : ''}</h3>
             <p class="post-excerpt">${esc(post.summary || '')}</p>
         </a>`;
 }).join('\n');
