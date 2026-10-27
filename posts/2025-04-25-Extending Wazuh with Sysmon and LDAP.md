@@ -76,7 +76,7 @@ have to look at the network level.
 
 This turned my attention to LDAP, as it is an absolutely vital source of abuse in attacks for enumeration and escalation attempts. My goal was to identify LDAP queries that I deemed "suspicious" - things like listing all SPNs for Kerberoasting,
 finding Constrained Delegation principals, etc. After doing some research, it turns out that Domain Controllers do not log incoming LDAP queries or binds at all by default, and it requires manual registry changes. You can still implement the changes
-via GPO, but its annoying regardless:
+via GPO, but it's annoying regardless:
 
 ```
 HKLM:\SYSTEM\CurrentControlSet\Services\NTDS\Diagnostics -> 15 Field Engineering SET TO 5

@@ -5,7 +5,7 @@
     "url": "https://www.armadin.com/blog-posts/prtremote-extract-prt-cookies-remotely-with-interactivetoken-scheduled-task",
     "source": "armadin.com",
     "date": "2026-08-26",
-    "summary": "How TASK_LOGON_INTERACTIVE_TOKEN and BrowserCore.exe combine to extract a live PRT cookie over SMB.",
+    "summary": "An InteractiveToken scheduled task and BrowserCore.exe are enough to pull a live PRT cookie off a remote host over SMB.",
     "excerpt": "Primary Refresh Tokens are the backbone of Entra ID Single Sign-On (SSO), with each one belonging to a single Windows logon session. Extracting one has traditionally meant getting code running inside that session: process injection or token theft, both heavily signatured, and both requiring malicious code to execute on the endpoint."
   },
   {
@@ -21,48 +21,48 @@
     "slug": "klist-lolbin",
     "file": "2026-03-10-Post-Exploitation with the klist LOLBIN.md",
     "date": "2026-03-10",
-    "summary": "Abusing Windows' native klist.exe binary to enumerate Kerberos tickets and extract credentials."
+    "summary": "Running as SYSTEM, the klist.exe that ships with Windows will dump every logged-on user's TGT. I convert them to ccache and build a TGT harvester out of scheduled tasks."
   },
   {
     "title": "No More Implants: User's Guide to Splashtop C2",
     "slug": "splashtop-c2",
     "file": "2025-12-08-Who Needs Implants - A User's Guide to Splashtop C2.md",
     "date": "2025-12-08",
-    "summary": "Exploring why simple, legitimate remote-access tools like Splashtop often outperform custom implants in real red team operations and adversary emulation."
+    "summary": "Lazarus barely bothers with custom malware, so I tried Splashtop as a C2. Dumping LSASS and requesting certificates through it set off no alerts in CrowdStrike or MDE."
   },
   {
     "title": "Password Spraying ManageEngine and Other RSA-protected Logins",
     "slug": "password-spraying-manageengine",
     "file": "2025-11-15-Password Spraying ManageEngine.md",
     "date": "2025-11-15",
-    "summary": "How to password spray RSA-encrypted login portals with JavaScript function hooking and Python HTTP requests."
+    "summary": "A ManageEngine login on a recent pentest RSA-encrypted every password. Pulling the public key out of the page's JavaScript made it sprayable again."
   },
   {
     "title": "Please, Please, Please Stop Getting NTLM Relayed",
     "slug": "ntlm-relay",
     "file": "2025-06-11-Please, Please, Please Stop Getting NTLM Relayed.md",
     "date": "2025-06-11",
-    "summary": "Understanding NTLM relay attacks and how to properly secure your network against them across various protocols."
+    "summary": "Nearly every internal test I've run turns up an NTLM relay path. What to fix for SMB, ADCS, LDAP, and MSSQL, plus a script to find the gaps."
   },
   {
     "title": "Extending Wazuh with Sysmon and LDAP",
     "slug": "wazuh-sysmon-ldap",
     "file": "2025-04-25-Extending Wazuh with Sysmon and LDAP.md",
     "date": "2025-04-25",
-    "summary": "How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging."
+    "summary": "Domain controllers don't log LDAP queries by default. I turned that on, wrote Wazuh rules for suspicious queries alongside Sysmon, and caught my own BloodHound run."
   },
   {
     "title": "AMSI Bypasses and PowerShell Obfuscation",
     "slug": "amsi-bypasses",
     "file": "2024-06-17-AMSI Bypasses and PowerShell Obfuscation.md",
     "date": "2024-06-17",
-    "summary": "Understanding AMSI's role in script detection and techniques for bypassing it through PowerShell obfuscation."
+    "summary": "How AMSI scans PowerShell, and how to take a public bypass that gets flagged, find the offending strings with AMSITrigger, and obfuscate around them."
   },
   {
     "title": "Bookmarklets as XSS Attack Vectors",
     "slug": "bookmarklets-xss",
     "file": "2024-06-09-Bookmarklets as XSS Attack Vectors.md",
     "date": "2024-06-09",
-    "summary": "Analysis of a real-world attack using browser bookmarklets to bypass CORS protections and steal Roblox account credentials."
+    "summary": "Someone went after a friend's Roblox account, whose items are worth thousands of real dollars, with a fake fan-art request and a bookmarklet that runs JavaScript on roblox.com to sidestep CORS."
   }
 ]

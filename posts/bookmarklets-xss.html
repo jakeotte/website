@@ -4,16 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bookmarklets as XSS Attack Vectors – Jake Otte</title>
-    <meta name="description" content="Analysis of a real-world attack using browser bookmarklets to bypass CORS protections and steal Roblox account credentials." />
+    <meta name="description" content="Someone went after a friend's Roblox account, whose items are worth thousands of real dollars, with a fake fan-art request and a bookmarklet that runs JavaScript on roblox.com to sidestep CORS." />
     <meta property="og:title" content="Bookmarklets as XSS Attack Vectors – Jake Otte" />
-    <meta property="og:description" content="Analysis of a real-world attack using browser bookmarklets to bypass CORS protections and steal Roblox account credentials." />
+    <meta property="og:description" content="Someone went after a friend's Roblox account, whose items are worth thousands of real dollars, with a fake fan-art request and a bookmarklet that runs JavaScript on roblox.com to sidestep CORS." />
     <meta property="og:type" content="article" />
     <meta property="og:url" content="https://jakeotte.com/posts/bookmarklets-xss.html" />
     <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
     <meta property="og:site_name" content="Jake Otte" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Bookmarklets as XSS Attack Vectors – Jake Otte" />
-    <meta name="twitter:description" content="Analysis of a real-world attack using browser bookmarklets to bypass CORS protections and steal Roblox account credentials." />
+    <meta name="twitter:description" content="Someone went after a friend's Roblox account, whose items are worth thousands of real dollars, with a fake fan-art request and a bookmarklet that runs JavaScript on roblox.com to sidestep CORS." />
     <link rel="canonical" href="https://jakeotte.com/posts/bookmarklets-xss.html" />
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="../assets/img/favicons/favicon.ico" />
@@ -26,35 +26,30 @@
 <body class="page">
 
     <a class="skip-link" href="#post-main">Skip to article</a>
-    <canvas id="bg-canvas"></canvas>
-
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte</h1>
-                <p class="tag">Offensive Security</p>
+                <span class="brand-name">Jake Otte</span>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
                 <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
-                <a href="../contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
     <main id="post-main">
         <div class="post-view-content">
-            <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
+            <a href="../index.html#research" class="post-back-link">All posts</a>
             <article class="post-article">
                 <header class="post-heading">
                     <h1>Bookmarklets as XSS Attack Vectors</h1>
                     <div class="post-meta">
                         <time datetime="2024-06-09">June 9, 2024</time>
-                        <span aria-hidden="true">·</span>
                         <span>7 min read</span>
                     </div>
-                    <p class="post-deck">Analysis of a real-world attack using browser bookmarklets to bypass CORS protections and steal Roblox account credentials.</p>
+                    <p class="post-deck">Someone went after a friend's Roblox account, whose items are worth thousands of real dollars, with a fake fan-art request and a bookmarklet that runs JavaScript on roblox.com to sidestep CORS.</p>
                 </header>
                 <div class="post-body"><p>If you’re in the threat intelligence space, you’ve probably seen headlines about $1 billion dollar crypto heists pulled off by Lazarus group in North Korea. You’ve seen multi-million dollar deals being made for decrypting ransomware and infostealers with nine figures in estimated damages. What you probably haven’t seen is the cyber battlefield of children’s online gaming - particularly a game called Roblox.</p>
 <h2>The Target</h2>
@@ -73,7 +68,7 @@
 <p>Reviewing just the static strings in the anchor element was enough to know something was up - <code>createOTPsession</code>, <code>getCsrfToken</code>, etc. I told Gary that things weren’t looking good, and don’t expect the fanart any time soon.</p>
 <p>I decided to keep going and started deobfuscating the JavaScript. I discovered the malware’s author used <a href="https://deobfuscate.io/">this</a> popular obfuscation engine which allowed for easy recovery of the source. Obviously, not all of the source could be recovered - local variable names were still random hex strings.</p>
 <h2>The Payload</h2>
-<p>Unsuprisingly, the payload JavaScript was a large amount of fetch requests to endpoints related to account settings and security hosted on the <code>roblox.com</code> domain:</p>
+<p>Unsurprisingly, the payload JavaScript was a large amount of fetch requests to endpoints related to account settings and security hosted on the <code>roblox.com</code> domain:</p>
 <pre><code class="language-javascript">const disable2fa = async (_0x28bbe9, _0x197e35, _0x4fe56d) =&gt; {
   _0x197e35 = _0x197e35 || 0x0;
   _0x197e35++;
@@ -138,7 +133,7 @@ the link-button onto your bookmarks bar.</p>
             <div class="post-nav">
             <span></span>
             <a href="amsi-bypasses.html" class="post-nav-link post-nav-next">
-                <span class="post-nav-dir">Newer →</span>
+                <span class="post-nav-dir">Newer</span>
                 <span class="post-nav-title">AMSI Bypasses and PowerShell Obfuscation</span>
             </a>
         </div>
@@ -152,10 +147,10 @@ the link-button onto your bookmarks bar.</p>
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
                     <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
-                    <a href="../contact.html">Contact</a>
                     <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href="https://linkedin.com/in/jake-otte" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 </div>
-                <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
+                <p class="copyright">© 2026 Jake Otte</p>
             </div>
         </div>
     </footer>
@@ -170,7 +165,6 @@ the link-button onto your bookmarks bar.</p>
     }, { passive: true });
     </script>
 
-    <script defer src="../script.js"></script>
     <!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "6d0653b4bd99413e93536ad07920dba9"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

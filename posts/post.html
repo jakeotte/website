@@ -21,19 +21,15 @@
 <body class="page">
 
     <a class="skip-link" href="#post-main">Skip to article</a>
-    <canvas id="bg-canvas"></canvas>
-
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte</h1>
-                <p class="tag">Offensive Security</p>
+                <span class="brand-name">Jake Otte</span>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
                 <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
-                <a href="../contact.html">Contact</a>
             </nav>
         </div>
     </header>
@@ -51,10 +47,10 @@
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
                     <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
-                    <a href="../contact.html">Contact</a>
                     <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href="https://linkedin.com/in/jake-otte" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 </div>
-                <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
+                <p class="copyright">© 2026 Jake Otte</p>
             </div>
         </div>
     </footer>
@@ -121,24 +117,23 @@
         const navHtml = `
             <div class="post-nav">
                 ${prev ? `<a href="post.html?slug=${prev.slug}" class="post-nav-link post-nav-prev">
-                    <span class="post-nav-dir">← Older</span>
+                    <span class="post-nav-dir">Older</span>
                     <span class="post-nav-title">${prev.title}</span>
                 </a>` : '<span></span>'}
                 ${next ? `<a href="post.html?slug=${next.slug}" class="post-nav-link post-nav-next">
-                    <span class="post-nav-dir">Newer →</span>
+                    <span class="post-nav-dir">Newer</span>
                     <span class="post-nav-title">${next.title}</span>
                 </a>` : '<span></span>'}
             </div>`;
 
         document.getElementById('post-main').innerHTML = `
             <div class="post-view-content">
-                <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
+                <a href="../index.html#research" class="post-back-link">All posts</a>
                 <article class="post-article">
                     <header class="post-heading">
                         <h1>${post.title}</h1>
                         <div class="post-meta">
                             <time datetime="${post.date}">${formatDate(post.date)}</time>
-                            <span aria-hidden="true">·</span>
                             <span>${mins} min read</span>
                         </div>
                         <p class="post-deck">${desc}</p>
@@ -203,6 +198,5 @@
     }
     </script>
 
-    <script defer src="../script.js"></script>
 </body>
 </html>

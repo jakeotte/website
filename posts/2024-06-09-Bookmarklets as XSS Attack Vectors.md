@@ -32,7 +32,7 @@ I decided to keep going and started deobfuscating the JavaScript. I discovered t
 
 ## The Payload
 
-Unsuprisingly, the payload JavaScript was a large amount of fetch requests to endpoints related to account settings and security hosted on the `roblox.com` domain:
+Unsurprisingly, the payload JavaScript was a large amount of fetch requests to endpoints related to account settings and security hosted on the `roblox.com` domain:
 
 ```javascript
 const disable2fa = async (_0x28bbe9, _0x197e35, _0x4fe56d) => {

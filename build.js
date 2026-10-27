@@ -40,31 +40,6 @@ function fmtShort(s) {
 function esc(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function excerpt(mdText) {
-    const lines = mdText.split('\n');
-    let para = '';
-    for (const line of lines) {
-        const t = line.trim();
-        if (!t) { if (para) break; continue; }
-        if (/^#{1,6}\s/.test(t)) continue;
-        if (/^[`~]{3}/.test(t)) continue;
-        if (/^!\[/.test(t)) continue;
-        if (/^>/.test(t)) continue;
-        if (/^</.test(t)) continue;
-        if (/^[-*+]\s/.test(t)) continue;
-        para += (para ? ' ' : '') + t;
-        if (para.length > 200) break;
-    }
-    para = para
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-        .replace(/`[^`]+`/g, m => m.slice(1, -1))
-        .replace(/\*\*([^*]+)\*\*/g, '$1')
-        .replace(/\*([^*]+)\*/g, '$1')
-        .replace(/_([^_]+)_/g, '$1');
-    if (para.length > 480) para = para.slice(0, 480).replace(/\s+\S*$/, '');
-    return para;
-}
-
 function formatFigures(html) {
     return html
         .replace(
@@ -95,14 +70,14 @@ posts.forEach((post, idx) => {
     const navHtml = `<div class="post-nav">
             ${prev
                 ? `<a href="${postHref(prev)}"${postLinkAttrs(prev)} class="post-nav-link post-nav-prev">
-                <span class="post-nav-dir">← Older</span>
+                <span class="post-nav-dir">Older</span>
                 <span class="post-nav-title">${esc(prev.title)}</span>
             </a>`
                 : '<span></span>'}
             ${next
                 ? `<a href="${postHref(next)}"${postLinkAttrs(next)} class="post-nav-link post-nav-next">
-                <span class="post-nav-dir">Newer →</span>
-                <span class="post-nav-title">${esc(next.title)}${next.external ? ' <span aria-hidden="true">↗</span>' : ''}</span>
+                <span class="post-nav-dir">Newer</span>
+                <span class="post-nav-title">${esc(next.title)}</span>
             </a>`
                 : '<span></span>'}
         </div>`;
@@ -140,32 +115,27 @@ posts.forEach((post, idx) => {
 <body class="page">
 
     <a class="skip-link" href="#post-main">Skip to article</a>
-    <canvas id="bg-canvas"></canvas>
-
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte</h1>
-                <p class="tag">Offensive Security</p>
+                <span class="brand-name">Jake Otte</span>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
                 <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
-                <a href="../contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
     <main id="post-main">
         <div class="post-view-content">
-            <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
+            <a href="../index.html#research" class="post-back-link">All posts</a>
             <article class="post-article">
                 <header class="post-heading">
                     <h1>${title}</h1>
                     <div class="post-meta">
                         <time datetime="${post.date}">${fmtLong(post.date)}</time>
-                        <span aria-hidden="true">·</span>
                         <span>${mins} min read</span>
                     </div>
                     <p class="post-deck">${desc}</p>
@@ -183,10 +153,10 @@ posts.forEach((post, idx) => {
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
                     <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
-                    <a href="../contact.html">Contact</a>
                     <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href="https://linkedin.com/in/jake-otte" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 </div>
-                <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
+                <p class="copyright">© 2026 Jake Otte</p>
             </div>
         </div>
     </footer>
@@ -201,8 +171,6 @@ posts.forEach((post, idx) => {
     }, { passive: true });
     </script>
 
-    <script defer src="../script.js"></script>
-
     <!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "6d0653b4bd99413e93536ad07920dba9"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>`;
@@ -216,27 +184,15 @@ posts.forEach((post, idx) => {
 const postsHtml = posts.map((post, idx) => {
     const mdPath   = post.external ? '' : path.join(POSTS_DIR, post.file);
     const markdown = mdPath && fs.existsSync(mdPath) ? fs.readFileSync(mdPath, 'utf-8') : '';
-    const opening  = markdown ? excerpt(markdown) : '';
-    const ex       = post.external
-        ? (post.excerpt || post.summary || '')
-        : (opening.length >= 100 && /[.!?][\"']?$/.test(opening.trim()) ? opening : (post.summary || opening));
     const mins     = Math.max(1, Math.round(markdown.split(/\s+/).length / 200));
-    const metaHtml = post.external
-        ? `<span class="post-card-read-time">${esc(post.source || 'External')} <span aria-hidden="true">↗</span></span>`
-        : `<span class="post-card-read-time">${mins} min read</span>`;
-    const excerptBlock = ex
-        ? `\n            <div class="post-excerpt-wrap">\n                <p class="post-excerpt">${esc(ex)}</p>\n                <div class="post-excerpt-fade"></div>\n            </div>`
-        : '';
-    return `        <a class="post${idx === 0 ? ' featured' : ''}" href="${postHref(post, true)}"${postLinkAttrs(post)}>
-            <div class="post-header">
-                <div class="post-details">
-                    <time class="post-date" datetime="${post.date}">${fmtShort(post.date)}</time>
-                    <span class="post-meta-separator" aria-hidden="true">·</span>
-                    ${metaHtml}
-                </div>
-                <span class="post-arrow">${post.external ? '↗' : '→'}</span>
+    const detail   = post.external ? `On ${esc(post.source || 'another site')}` : `${mins} min read`;
+    return `        <a class="post${idx === 0 ? ' post-latest' : ''}" href="${postHref(post, true)}"${postLinkAttrs(post)}>
+            <div class="post-details">
+                <time class="post-date" datetime="${post.date}">${fmtShort(post.date)}</time>
+                <span class="post-card-read-time">${detail}</span>
             </div>
-            <p class="post-title">${esc(post.title)}</p>${excerptBlock}
+            <p class="post-title">${esc(post.title)}</p>
+            <p class="post-excerpt">${esc(post.summary || '')}</p>
         </a>`;
 }).join('\n');
 

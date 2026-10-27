@@ -4,16 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Extending Wazuh with Sysmon and LDAP – Jake Otte</title>
-    <meta name="description" content="How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging." />
+    <meta name="description" content="Domain controllers don't log LDAP queries by default. I turned that on, wrote Wazuh rules for suspicious queries alongside Sysmon, and caught my own BloodHound run." />
     <meta property="og:title" content="Extending Wazuh with Sysmon and LDAP – Jake Otte" />
-    <meta property="og:description" content="How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging." />
+    <meta property="og:description" content="Domain controllers don't log LDAP queries by default. I turned that on, wrote Wazuh rules for suspicious queries alongside Sysmon, and caught my own BloodHound run." />
     <meta property="og:type" content="article" />
     <meta property="og:url" content="https://jakeotte.com/posts/wazuh-sysmon-ldap.html" />
     <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
     <meta property="og:site_name" content="Jake Otte" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Extending Wazuh with Sysmon and LDAP – Jake Otte" />
-    <meta name="twitter:description" content="How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging." />
+    <meta name="twitter:description" content="Domain controllers don't log LDAP queries by default. I turned that on, wrote Wazuh rules for suspicious queries alongside Sysmon, and caught my own BloodHound run." />
     <link rel="canonical" href="https://jakeotte.com/posts/wazuh-sysmon-ldap.html" />
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="../assets/img/favicons/favicon.ico" />
@@ -26,35 +26,30 @@
 <body class="page">
 
     <a class="skip-link" href="#post-main">Skip to article</a>
-    <canvas id="bg-canvas"></canvas>
-
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte</h1>
-                <p class="tag">Offensive Security</p>
+                <span class="brand-name">Jake Otte</span>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
                 <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
-                <a href="../contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
     <main id="post-main">
         <div class="post-view-content">
-            <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
+            <a href="../index.html#research" class="post-back-link">All posts</a>
             <article class="post-article">
                 <header class="post-heading">
                     <h1>Extending Wazuh with Sysmon and LDAP</h1>
                     <div class="post-meta">
                         <time datetime="2025-04-25">April 25, 2025</time>
-                        <span aria-hidden="true">·</span>
                         <span>6 min read</span>
                     </div>
-                    <p class="post-deck">How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging.</p>
+                    <p class="post-deck">Domain controllers don't log LDAP queries by default. I turned that on, wrote Wazuh rules for suspicious queries alongside Sysmon, and caught my own BloodHound run.</p>
                 </header>
                 <div class="post-body"><p><img src="../assets/img/wazuh/wazuh.jpg" alt="Wazuh Dashboard">
 <em>Wazuh SIEM Dashboard</em></p>
@@ -114,7 +109,7 @@ more advanced malware techniques such as remote threadless injection or techniqu
 have to look at the network level.</p>
 <p>This turned my attention to LDAP, as it is an absolutely vital source of abuse in attacks for enumeration and escalation attempts. My goal was to identify LDAP queries that I deemed “suspicious” - things like listing all SPNs for Kerberoasting,
 finding Constrained Delegation principals, etc. After doing some research, it turns out that Domain Controllers do not log incoming LDAP queries or binds at all by default, and it requires manual registry changes. You can still implement the changes
-via GPO, but its annoying regardless:</p>
+via GPO, but it’s annoying regardless:</p>
 <pre><code>HKLM:\SYSTEM\CurrentControlSet\Services\NTDS\Diagnostics -&gt; 15 Field Engineering SET TO 5
 HKLM:\SYSTEM\CurrentControlSet\Services\NTDS\Parameters -&gt; Expensive Search Results Threshold SET TO 1
 HKLM:\SYSTEM\CurrentControlSet\Services\NTDS\Parameters -&gt; Inefficient Search Results Threshold SET TO 1
@@ -171,11 +166,11 @@ made from compromised user sessions - typically through a phishing payload:</p>
             </article>
             <div class="post-nav">
             <a href="amsi-bypasses.html" class="post-nav-link post-nav-prev">
-                <span class="post-nav-dir">← Older</span>
+                <span class="post-nav-dir">Older</span>
                 <span class="post-nav-title">AMSI Bypasses and PowerShell Obfuscation</span>
             </a>
             <a href="ntlm-relay.html" class="post-nav-link post-nav-next">
-                <span class="post-nav-dir">Newer →</span>
+                <span class="post-nav-dir">Newer</span>
                 <span class="post-nav-title">Please, Please, Please Stop Getting NTLM Relayed</span>
             </a>
         </div>
@@ -189,10 +184,10 @@ made from compromised user sessions - typically through a phishing payload:</p>
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
                     <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
-                    <a href="../contact.html">Contact</a>
                     <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href="https://linkedin.com/in/jake-otte" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 </div>
-                <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
+                <p class="copyright">© 2026 Jake Otte</p>
             </div>
         </div>
     </footer>
@@ -207,7 +202,6 @@ made from compromised user sessions - typically through a phishing payload:</p>
     }, { passive: true });
     </script>
 
-    <script defer src="../script.js"></script>
     <!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "6d0653b4bd99413e93536ad07920dba9"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

@@ -4,16 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Abusing klist.exe for Kerberos Post-Exploitation – Jake Otte</title>
-    <meta name="description" content="Abusing Windows' native klist.exe binary to enumerate Kerberos tickets and extract credentials." />
+    <meta name="description" content="Running as SYSTEM, the klist.exe that ships with Windows will dump every logged-on user's TGT. I convert them to ccache and build a TGT harvester out of scheduled tasks." />
     <meta property="og:title" content="Abusing klist.exe for Kerberos Post-Exploitation – Jake Otte" />
-    <meta property="og:description" content="Abusing Windows' native klist.exe binary to enumerate Kerberos tickets and extract credentials." />
+    <meta property="og:description" content="Running as SYSTEM, the klist.exe that ships with Windows will dump every logged-on user's TGT. I convert them to ccache and build a TGT harvester out of scheduled tasks." />
     <meta property="og:type" content="article" />
     <meta property="og:url" content="https://jakeotte.com/posts/klist-lolbin.html" />
     <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
     <meta property="og:site_name" content="Jake Otte" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Abusing klist.exe for Kerberos Post-Exploitation – Jake Otte" />
-    <meta name="twitter:description" content="Abusing Windows' native klist.exe binary to enumerate Kerberos tickets and extract credentials." />
+    <meta name="twitter:description" content="Running as SYSTEM, the klist.exe that ships with Windows will dump every logged-on user's TGT. I convert them to ccache and build a TGT harvester out of scheduled tasks." />
     <link rel="canonical" href="https://jakeotte.com/posts/klist-lolbin.html" />
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="../assets/img/favicons/favicon.ico" />
@@ -26,35 +26,30 @@
 <body class="page">
 
     <a class="skip-link" href="#post-main">Skip to article</a>
-    <canvas id="bg-canvas"></canvas>
-
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte</h1>
-                <p class="tag">Offensive Security</p>
+                <span class="brand-name">Jake Otte</span>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
                 <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
-                <a href="../contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
     <main id="post-main">
         <div class="post-view-content">
-            <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
+            <a href="../index.html#research" class="post-back-link">All posts</a>
             <article class="post-article">
                 <header class="post-heading">
                     <h1>Abusing klist.exe for Kerberos Post-Exploitation</h1>
                     <div class="post-meta">
                         <time datetime="2026-03-10">March 10, 2026</time>
-                        <span aria-hidden="true">·</span>
                         <span>8 min read</span>
                     </div>
-                    <p class="post-deck">Abusing Windows' native klist.exe binary to enumerate Kerberos tickets and extract credentials.</p>
+                    <p class="post-deck">Running as SYSTEM, the klist.exe that ships with Windows will dump every logged-on user's TGT. I convert them to ccache and build a TGT harvester out of scheduled tasks.</p>
                 </header>
                 <div class="post-body"><p>Microsoft Windows ships with the program <code>klist.exe</code>, found in <code>C:\Windows\System32</code>. Technology and security professionals may be most familiar with the program’s default, parameter-less behavior of listing Kerberos tickets loaded in the current logon session. However, this behavior is just the surface of <code>klist</code>’s capabilities.</p>
 <figure><img src="../assets/img/klist/help.png" alt="klist"><figcaption>The klist binary help menu.</figcaption></figure>
@@ -102,7 +97,7 @@ EncodedTicket      : (size: 1162)
 </code></pre>
 <p>Unfortunately for us, the TGT’s session key has been zeroed out, preventing us from using the hex dump directly as credential material. However, all is not lost - investigating the binary’s source in Ghidra reveals an interesting set of operations following argument parsing. The program opens a handle to the current process token and calls <code>RtlAdjustPrivilege</code> with a privilege <code>7</code>, aka <code>SeTcbPrivilege</code>. In the event of a permissions failure (<code>0xc0000061</code>), the program falls back to a privilege <code>0x14</code>, <code>SeImpersonatePrivilege</code>.</p>
 <figure><img src="../assets/img/klist/privs.png" alt="klist"><figcaption>Upgrading process privileges if possible.</figcaption></figure>
-<p>Following execution further, we can identify the function responsible for interfacing with LSASS and “extracting” Kerberos tickets. Rather strangely, it seems that <code>klist.exe</code> dynamically imports and resolves <code>LsaCallAuthenticationPackage</code> at runtime (a LOLBIN with IAT camoflauge to boot).</p>
+<p>Following execution further, we can identify the function responsible for interfacing with LSASS and “extracting” Kerberos tickets. Rather strangely, it seems that <code>klist.exe</code> dynamically imports and resolves <code>LsaCallAuthenticationPackage</code> at runtime (a LOLBIN with IAT camouflage to boot).</p>
 <figure><img src="../assets/img/klist/dynamic.png" alt="klist"><figcaption>Dynamically importing secur32.dll and resolving LsaCallAuthenticationPackage.</figcaption></figure>
 <p>This call explains why the original <code>klist tgt</code> execution included a nulled session key; LSASS will scrub the session key for any requesting processes lacking <code>SeTcbPrivilege</code>.</p>
 <p>With some insight into the API calls behind <code>klist</code>, we can execute <code>klist tgt</code> as <code>NT AUTHORITY\SYSTEM</code> with <code>SeTcbPrivilege</code>. Doing so provides the full hex dump and uncensored session key for our machine account:</p>
@@ -182,7 +177,7 @@ EncodedTicket      : (size: 1162)
 </code></pre>
 <p>Provided command execution as <code>NT AUTHORITY\SYSTEM</code>, we can now opt out of using Rubeus for Microsoft’s own solution. I should also mention the existence of the <a href="https://github.com/apetro76/Klist2">PowerShell project <code>klist2</code></a>, a non-Windows-native binary that supports Kerberos ticket dumping even on credential guard enabled systems.</p>
 <h2>Dumping TGTs “Remotely”</h2>
-<p>As you can imagine, the flexibility of using a Windows LOLBIN for Kerberos ticket extraction is unparalelled. Perhaps one of the most annoying situations many pentesters find themselves in is Administrative-level permissions on a host loaded up with EDR, preventing significant malware deployment. While named pipes may support the extraction of SAM or parts of LSASS, touching disk with obfuscated Rubeus or another loader can raise alarms and quarantine machines, causing TGT extraction to become a headache.</p>
+<p>As you can imagine, the flexibility of using a Windows LOLBIN for Kerberos ticket extraction is unparalleled. Perhaps one of the most annoying situations many pentesters find themselves in is Administrative-level permissions on a host loaded up with EDR, preventing significant malware deployment. While named pipes may support the extraction of SAM or parts of LSASS, touching disk with obfuscated Rubeus or another loader can raise alarms and quarantine machines, causing TGT extraction to become a headache.</p>
 <p>With <code>klist</code>, we can simply use SYSTEM-level command execution to accomplish the same task. While not as OPSEC-friendly as an RDP session and manual copy-paste, I created <a href="https://github.com/jakeotte/klist2ccache">a script</a> to use Scheduled Tasks (atexec, my personal preference) as <code>NT AUTHORITY\SYSTEM</code> to execute <code>klist tgt</code> for all Kerberos sessions, write the output to a file, and download the file over SMB.</p>
 <pre><code>&gt; python klistremote.py lumon.com/jotter@jotter-pc.lumon.com
 [*] Connecting to host ...
@@ -218,11 +213,11 @@ From a defensive standpoint, the obvious detection opportunity is <code>klist.ex
             </article>
             <div class="post-nav">
             <a href="splashtop-c2.html" class="post-nav-link post-nav-prev">
-                <span class="post-nav-dir">← Older</span>
+                <span class="post-nav-dir">Older</span>
                 <span class="post-nav-title">No More Implants: User's Guide to Splashtop C2</span>
             </a>
             <a href="klist-revisited.html" class="post-nav-link post-nav-next">
-                <span class="post-nav-dir">Newer →</span>
+                <span class="post-nav-dir">Newer</span>
                 <span class="post-nav-title">klist.exe Revisited: Internals and Further Use Cases</span>
             </a>
         </div>
@@ -236,10 +231,10 @@ From a defensive standpoint, the obvious detection opportunity is <code>klist.ex
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
                     <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
-                    <a href="../contact.html">Contact</a>
                     <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href="https://linkedin.com/in/jake-otte" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 </div>
-                <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
+                <p class="copyright">© 2026 Jake Otte</p>
             </div>
         </div>
     </footer>
@@ -254,7 +249,6 @@ From a defensive standpoint, the obvious detection opportunity is <code>klist.ex
     }, { passive: true });
     </script>
 
-    <script defer src="../script.js"></script>
     <!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "6d0653b4bd99413e93536ad07920dba9"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

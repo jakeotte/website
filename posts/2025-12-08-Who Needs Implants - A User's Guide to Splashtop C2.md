@@ -44,7 +44,7 @@ From a red team op standpoint, the screen control feature is not ideal. Access d
 > ![Splashtop monitoring](../assets/img/splashtop/splash.png)
 > *Clear-as-day watermark for interactive sessions.*
 
-Beyond this, Splashtop offers an extremely simple and streamlined onboarding process through a signed EXE binary. It won't get much better than that for intial execution.
+Beyond this, Splashtop offers an extremely simple and streamlined onboarding process through a signed EXE binary. It won't get much better than that for initial execution.
 
 ## The Best Feature
 

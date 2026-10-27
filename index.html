@@ -43,25 +43,20 @@
         ]
     }
     </script>
-    <script defer src="script.js"></script>
 </head>
 
 <body class="index">
 
     <a class="skip-link" href="#main-content">Skip to content</a>
-    <canvas id="bg-canvas"></canvas>
-
     <header>
         <div class="header-top">
             <a class="brand" href="index.html">
-                <h1>&gt; Jake Otte</h1>
-                <p class="tag">Offensive Security</p>
+                <span class="brand-name">Jake Otte</span>
             </a>
             <nav class="nav">
                 <a href="index.html" class="active">Home</a>
                 <a href="about.html">About</a>
                 <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
-                <a href="contact.html">Contact</a>
             </nav>
         </div>
     </header>
@@ -75,13 +70,18 @@
             <div class="sidebar-identity">
                 <img class="sidebar-avatar" src="assets/square.jpg" alt="Jake Otte" />
                 <div>
-                    <h2 class="sidebar-name">Jake Otte</h2>
+                    <h1 class="sidebar-name">Jake Otte</h1>
                     <p class="sidebar-role">Red Team Operator</p>
                 </div>
             </div>
-            <p class="sidebar-bio">Red team operator working across cloud, Active Directory, internal networks, and web applications. I write about Windows tradecraft, identity, and evasion.</p>
+            <ul class="sidebar-certs" aria-label="Certifications">
+                <li>OSCP</li>
+                <li>CRTO</li>
+                <li>CRTP</li>
+                <li>MCRTP</li>
+            </ul>
+            <p class="sidebar-bio">Breaking into enterprise networks and cloud environments for a living. Documenting my favorite attack paths, techniques, and new areas of research.</p>
             <div class="sidebar-contact">
-                <p class="sidebar-contact-label">Contact:</p>
                 <a class="sidebar-email" href="mailto:jake123otte1@gmail.com">jake123otte1@gmail.com</a>
                 <div class="sidebar-socials">
                     <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
@@ -97,145 +97,81 @@
         <!-- Posts feed -->
         <div class="feed">
             <div class="section-header" id="research">
-                <h3 class="section-title"><span>Research</span> &amp; Posts</h3>
-                <p class="section-subtitle" id="post-count">9 posts</p>
+                <h2 class="section-title">Posts</h2>
             </div>
             <div id="posts">
         <!-- BEGIN:POSTS -->
-        <a class="post featured" href="https://www.armadin.com/blog-posts/prtremote-extract-prt-cookies-remotely-with-interactivetoken-scheduled-task" target="_blank" rel="noopener noreferrer">
-            <div class="post-header">
-                <div class="post-details">
-                    <time class="post-date" datetime="2026-08-26">Aug 26, 2026</time>
-                    <span class="post-meta-separator" aria-hidden="true">·</span>
-                    <span class="post-card-read-time">armadin.com <span aria-hidden="true">↗</span></span>
-                </div>
-                <span class="post-arrow">↗</span>
+        <a class="post post-latest" href="https://www.armadin.com/blog-posts/prtremote-extract-prt-cookies-remotely-with-interactivetoken-scheduled-task" target="_blank" rel="noopener noreferrer">
+            <div class="post-details">
+                <time class="post-date" datetime="2026-08-26">Aug 26, 2026</time>
+                <span class="post-card-read-time">On armadin.com</span>
             </div>
             <p class="post-title">PRTremote: Extract PRT Cookies Remotely with InteractiveToken Scheduled Tasks</p>
-            <div class="post-excerpt-wrap">
-                <p class="post-excerpt">Primary Refresh Tokens are the backbone of Entra ID Single Sign-On (SSO), with each one belonging to a single Windows logon session. Extracting one has traditionally meant getting code running inside that session: process injection or token theft, both heavily signatured, and both requiring malicious code to execute on the endpoint.</p>
-                <div class="post-excerpt-fade"></div>
-            </div>
+            <p class="post-excerpt">An InteractiveToken scheduled task and BrowserCore.exe are enough to pull a live PRT cookie off a remote host over SMB.</p>
         </a>
         <a class="post" href="posts/klist-revisited.html">
-            <div class="post-header">
-                <div class="post-details">
-                    <time class="post-date" datetime="2026-06-30">Jun 30, 2026</time>
-                    <span class="post-meta-separator" aria-hidden="true">·</span>
-                    <span class="post-card-read-time">4 min read</span>
-                </div>
-                <span class="post-arrow">→</span>
+            <div class="post-details">
+                <time class="post-date" datetime="2026-06-30">Jun 30, 2026</time>
+                <span class="post-card-read-time">4 min read</span>
             </div>
             <p class="post-title">klist.exe Revisited: Internals and Further Use Cases</p>
-            <div class="post-excerpt-wrap">
-                <p class="post-excerpt">In my previous post on klist.exe, I stated that SeTcbPrivilege was required to dump non-zeroed session keys for TGTs. It came as a shock when a week later, a coworker demonstrated that this wasn't the case. He was able to use a non-SYSTEM, Administrator-level service account to dump TGTs - all that was required was to specify the target logon ID with the -li flag.</p>
-                <div class="post-excerpt-fade"></div>
-            </div>
+            <p class="post-excerpt">A follow-up on klist.exe: extracting non-zeroed TGT session keys without SeTcbPrivilege, abusing WinRM for in-memory remote dumping, and examining behavior under Credential Guard.</p>
         </a>
         <a class="post" href="posts/klist-lolbin.html">
-            <div class="post-header">
-                <div class="post-details">
-                    <time class="post-date" datetime="2026-03-10">Mar 10, 2026</time>
-                    <span class="post-meta-separator" aria-hidden="true">·</span>
-                    <span class="post-card-read-time">8 min read</span>
-                </div>
-                <span class="post-arrow">→</span>
+            <div class="post-details">
+                <time class="post-date" datetime="2026-03-10">Mar 10, 2026</time>
+                <span class="post-card-read-time">8 min read</span>
             </div>
             <p class="post-title">Abusing klist.exe for Kerberos Post-Exploitation</p>
-            <div class="post-excerpt-wrap">
-                <p class="post-excerpt">Microsoft Windows ships with the program klist.exe, found in C:\Windows\System32. Technology and security professionals may be most familiar with the program's default, parameter-less behavior of listing Kerberos tickets loaded in the current logon session. However, this behavior is just the surface of klist's capabilities.</p>
-                <div class="post-excerpt-fade"></div>
-            </div>
+            <p class="post-excerpt">Running as SYSTEM, the klist.exe that ships with Windows will dump every logged-on user's TGT. I convert them to ccache and build a TGT harvester out of scheduled tasks.</p>
         </a>
         <a class="post" href="posts/splashtop-c2.html">
-            <div class="post-header">
-                <div class="post-details">
-                    <time class="post-date" datetime="2025-12-08">Dec 8, 2025</time>
-                    <span class="post-meta-separator" aria-hidden="true">·</span>
-                    <span class="post-card-read-time">5 min read</span>
-                </div>
-                <span class="post-arrow">→</span>
+            <div class="post-details">
+                <time class="post-date" datetime="2025-12-08">Dec 8, 2025</time>
+                <span class="post-card-read-time">5 min read</span>
             </div>
             <p class="post-title">No More Implants: User's Guide to Splashtop C2</p>
-            <div class="post-excerpt-wrap">
-                <p class="post-excerpt">There's a belief in offensive security that impactful red team operations hinge on robust implants, custom C2 profiles, and elaborate execution chains. Entire corners of the industry orbit around loader development, obfuscated payloads, and whatever new post-ex update Cobalt Strike pushed last month.</p>
-                <div class="post-excerpt-fade"></div>
-            </div>
+            <p class="post-excerpt">Lazarus barely bothers with custom malware, so I tried Splashtop as a C2. Dumping LSASS and requesting certificates through it set off no alerts in CrowdStrike or MDE.</p>
         </a>
         <a class="post" href="posts/password-spraying-manageengine.html">
-            <div class="post-header">
-                <div class="post-details">
-                    <time class="post-date" datetime="2025-11-15">Nov 15, 2025</time>
-                    <span class="post-meta-separator" aria-hidden="true">·</span>
-                    <span class="post-card-read-time">3 min read</span>
-                </div>
-                <span class="post-arrow">→</span>
+            <div class="post-details">
+                <time class="post-date" datetime="2025-11-15">Nov 15, 2025</time>
+                <span class="post-card-read-time">3 min read</span>
             </div>
             <p class="post-title">Password Spraying ManageEngine and Other RSA-protected Logins</p>
-            <div class="post-excerpt-wrap">
-                <p class="post-excerpt">On a recent pentest I discovered a client was hosting a couple of internet-facing ManageEngine applications. These applications are almost always tied to on-prem Active Directory and are a great way to conduct password spraying attacks without involving Entra and O365 endpoints.</p>
-                <div class="post-excerpt-fade"></div>
-            </div>
+            <p class="post-excerpt">A ManageEngine login on a recent pentest RSA-encrypted every password. Pulling the public key out of the page's JavaScript made it sprayable again.</p>
         </a>
         <a class="post" href="posts/ntlm-relay.html">
-            <div class="post-header">
-                <div class="post-details">
-                    <time class="post-date" datetime="2025-06-11">Jun 11, 2025</time>
-                    <span class="post-meta-separator" aria-hidden="true">·</span>
-                    <span class="post-card-read-time">8 min read</span>
-                </div>
-                <span class="post-arrow">→</span>
+            <div class="post-details">
+                <time class="post-date" datetime="2025-06-11">Jun 11, 2025</time>
+                <span class="post-card-read-time">8 min read</span>
             </div>
             <p class="post-title">Please, Please, Please Stop Getting NTLM Relayed</p>
-            <div class="post-excerpt-wrap">
-                <p class="post-excerpt">Note: This article and associated tool was written before the updates to Netexec and the release of RelayInformer. Better tools and methodologies now exist to enumerate insecure configurations in your environment.</p>
-                <div class="post-excerpt-fade"></div>
-            </div>
+            <p class="post-excerpt">Nearly every internal test I've run turns up an NTLM relay path. What to fix for SMB, ADCS, LDAP, and MSSQL, plus a script to find the gaps.</p>
         </a>
         <a class="post" href="posts/wazuh-sysmon-ldap.html">
-            <div class="post-header">
-                <div class="post-details">
-                    <time class="post-date" datetime="2025-04-25">Apr 25, 2025</time>
-                    <span class="post-meta-separator" aria-hidden="true">·</span>
-                    <span class="post-card-read-time">6 min read</span>
-                </div>
-                <span class="post-arrow">→</span>
+            <div class="post-details">
+                <time class="post-date" datetime="2025-04-25">Apr 25, 2025</time>
+                <span class="post-card-read-time">6 min read</span>
             </div>
             <p class="post-title">Extending Wazuh with Sysmon and LDAP</p>
-            <div class="post-excerpt-wrap">
-                <p class="post-excerpt">How to extend Wazuh SIEM capabilities with Sysmon endpoint monitoring and LDAP query logging.</p>
-                <div class="post-excerpt-fade"></div>
-            </div>
+            <p class="post-excerpt">Domain controllers don't log LDAP queries by default. I turned that on, wrote Wazuh rules for suspicious queries alongside Sysmon, and caught my own BloodHound run.</p>
         </a>
         <a class="post" href="posts/amsi-bypasses.html">
-            <div class="post-header">
-                <div class="post-details">
-                    <time class="post-date" datetime="2024-06-17">Jun 17, 2024</time>
-                    <span class="post-meta-separator" aria-hidden="true">·</span>
-                    <span class="post-card-read-time">4 min read</span>
-                </div>
-                <span class="post-arrow">→</span>
+            <div class="post-details">
+                <time class="post-date" datetime="2024-06-17">Jun 17, 2024</time>
+                <span class="post-card-read-time">4 min read</span>
             </div>
             <p class="post-title">AMSI Bypasses and PowerShell Obfuscation</p>
-            <div class="post-excerpt-wrap">
-                <p class="post-excerpt">Understanding AMSI's role in script detection and techniques for bypassing it through PowerShell obfuscation.</p>
-                <div class="post-excerpt-fade"></div>
-            </div>
+            <p class="post-excerpt">How AMSI scans PowerShell, and how to take a public bypass that gets flagged, find the offending strings with AMSITrigger, and obfuscate around them.</p>
         </a>
         <a class="post" href="posts/bookmarklets-xss.html">
-            <div class="post-header">
-                <div class="post-details">
-                    <time class="post-date" datetime="2024-06-09">Jun 9, 2024</time>
-                    <span class="post-meta-separator" aria-hidden="true">·</span>
-                    <span class="post-card-read-time">7 min read</span>
-                </div>
-                <span class="post-arrow">→</span>
+            <div class="post-details">
+                <time class="post-date" datetime="2024-06-09">Jun 9, 2024</time>
+                <span class="post-card-read-time">7 min read</span>
             </div>
             <p class="post-title">Bookmarklets as XSS Attack Vectors</p>
-            <div class="post-excerpt-wrap">
-                <p class="post-excerpt">If you're in the threat intelligence space, you've probably seen headlines about $1 billion dollar crypto heists pulled off by Lazarus group in North Korea. You've seen multi-million dollar deals being made for decrypting ransomware and infostealers with nine figures in estimated damages. What you probably haven't seen is the cyber battlefield of children's online gaming - particularly a game called Roblox.</p>
-                <div class="post-excerpt-fade"></div>
-            </div>
+            <p class="post-excerpt">Someone went after a friend's Roblox account, whose items are worth thousands of real dollars, with a fake fan-art request and a bookmarklet that runs JavaScript on roblox.com to sidestep CORS.</p>
         </a>
         <!-- END:POSTS -->
         </div>
@@ -251,10 +187,10 @@
                     <a href="index.html">Home</a>
                     <a href="about.html">About</a>
                     <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
-                    <a href="contact.html">Contact</a>
                     <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href="https://linkedin.com/in/jake-otte" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 </div>
-                <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
+                <p class="copyright">© 2026 Jake Otte</p>
             </div>
         </div>
     </footer>

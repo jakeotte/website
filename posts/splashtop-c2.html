@@ -4,16 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>No More Implants: User's Guide to Splashtop C2 – Jake Otte</title>
-    <meta name="description" content="Exploring why simple, legitimate remote-access tools like Splashtop often outperform custom implants in real red team operations and adversary emulation." />
+    <meta name="description" content="Lazarus barely bothers with custom malware, so I tried Splashtop as a C2. Dumping LSASS and requesting certificates through it set off no alerts in CrowdStrike or MDE." />
     <meta property="og:title" content="No More Implants: User's Guide to Splashtop C2 – Jake Otte" />
-    <meta property="og:description" content="Exploring why simple, legitimate remote-access tools like Splashtop often outperform custom implants in real red team operations and adversary emulation." />
+    <meta property="og:description" content="Lazarus barely bothers with custom malware, so I tried Splashtop as a C2. Dumping LSASS and requesting certificates through it set off no alerts in CrowdStrike or MDE." />
     <meta property="og:type" content="article" />
     <meta property="og:url" content="https://jakeotte.com/posts/splashtop-c2.html" />
     <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
     <meta property="og:site_name" content="Jake Otte" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="No More Implants: User's Guide to Splashtop C2 – Jake Otte" />
-    <meta name="twitter:description" content="Exploring why simple, legitimate remote-access tools like Splashtop often outperform custom implants in real red team operations and adversary emulation." />
+    <meta name="twitter:description" content="Lazarus barely bothers with custom malware, so I tried Splashtop as a C2. Dumping LSASS and requesting certificates through it set off no alerts in CrowdStrike or MDE." />
     <link rel="canonical" href="https://jakeotte.com/posts/splashtop-c2.html" />
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="../assets/img/favicons/favicon.ico" />
@@ -26,35 +26,30 @@
 <body class="page">
 
     <a class="skip-link" href="#post-main">Skip to article</a>
-    <canvas id="bg-canvas"></canvas>
-
     <header>
         <div class="header-top">
             <a class="brand" href="../index.html">
-                <h1>&gt; Jake Otte</h1>
-                <p class="tag">Offensive Security</p>
+                <span class="brand-name">Jake Otte</span>
             </a>
             <nav class="nav">
                 <a href="../index.html">Home</a>
                 <a href="../about.html">About</a>
                 <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
-                <a href="../contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
     <main id="post-main">
         <div class="post-view-content">
-            <a href="../index.html#research" class="post-back-link">← Research &amp; Posts</a>
+            <a href="../index.html#research" class="post-back-link">All posts</a>
             <article class="post-article">
                 <header class="post-heading">
                     <h1>No More Implants: User's Guide to Splashtop C2</h1>
                     <div class="post-meta">
                         <time datetime="2025-12-08">December 8, 2025</time>
-                        <span aria-hidden="true">·</span>
                         <span>5 min read</span>
                     </div>
-                    <p class="post-deck">Exploring why simple, legitimate remote-access tools like Splashtop often outperform custom implants in real red team operations and adversary emulation.</p>
+                    <p class="post-deck">Lazarus barely bothers with custom malware, so I tried Splashtop as a C2. Dumping LSASS and requesting certificates through it set off no alerts in CrowdStrike or MDE.</p>
                 </header>
                 <div class="post-body"><p>There’s a belief in offensive security that impactful red team operations hinge on robust implants, custom C2 profiles, and elaborate execution chains. Entire corners of the industry orbit around loader development, obfuscated payloads, and whatever new post-ex update Cobalt Strike pushed last month.</p>
 <p>Recently I took some time to look at the other side of the offensive spectrum - one far more common in real intrusions and involving far less shellcode. This was partly inspired by Any.Run’s article on <a href="https://any.run/cybersecurity-blog/lazarus-group-it-workers-investigation/">Lazarus Group’s TTPs</a>, which highlights an almost complete absence of custom malware in favor of legitimate remote-access tools like TeamViewer and Chrome Remote Desktop.</p>
@@ -78,7 +73,7 @@ a valid Windows logon, and others may only permit GUI-based interaction when a u
 <figure><img src="../assets/img/splashtop/chat.png" alt="Splashtop monitoring"><figcaption>Clever social engineering tricks performed by elite nation-state operators.</figcaption></figure>
 <p>From a red team op standpoint, the screen control feature is not ideal. Access during a user session will display a pretty obvious watermark and notification tab. Maybe you can try out some social engineering, but that’s a bold move when you’ve already got an “implant”.</p>
 <figure><img src="../assets/img/splashtop/splash.png" alt="Splashtop monitoring"><figcaption>Clear-as-day watermark for interactive sessions.</figcaption></figure>
-<p>Beyond this, Splashtop offers an extremely simple and streamlined onboarding process through a signed EXE binary. It won’t get much better than that for intial execution.</p>
+<p>Beyond this, Splashtop offers an extremely simple and streamlined onboarding process through a signed EXE binary. It won’t get much better than that for initial execution.</p>
 <h2>The Best Feature</h2>
 <p>Here’s the good part - Splashtop provides persistent, always-on background visibility into enrolled devices <strong>without initiating a session or interacting with the endpoint in any way</strong>. From the management console, you can see:</p>
 <ul>
@@ -103,11 +98,11 @@ undetected. But why do that when you can just install Splashtop?</p>
             </article>
             <div class="post-nav">
             <a href="password-spraying-manageengine.html" class="post-nav-link post-nav-prev">
-                <span class="post-nav-dir">← Older</span>
+                <span class="post-nav-dir">Older</span>
                 <span class="post-nav-title">Password Spraying ManageEngine and Other RSA-protected Logins</span>
             </a>
             <a href="klist-lolbin.html" class="post-nav-link post-nav-next">
-                <span class="post-nav-dir">Newer →</span>
+                <span class="post-nav-dir">Newer</span>
                 <span class="post-nav-title">Abusing klist.exe for Kerberos Post-Exploitation</span>
             </a>
         </div>
@@ -121,10 +116,10 @@ undetected. But why do that when you can just install Splashtop?</p>
                     <a href="../index.html">Home</a>
                     <a href="../about.html">About</a>
                     <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
-                    <a href="../contact.html">Contact</a>
                     <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href="https://linkedin.com/in/jake-otte" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 </div>
-                <p class="copyright">© 2026 Jake Otte — Offensive Security</p>
+                <p class="copyright">© 2026 Jake Otte</p>
             </div>
         </div>
     </footer>
@@ -139,7 +134,6 @@ undetected. But why do that when you can just install Splashtop?</p>
     }, { passive: true });
     </script>
 
-    <script defer src="../script.js"></script>
     <!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "6d0653b4bd99413e93536ad07920dba9"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

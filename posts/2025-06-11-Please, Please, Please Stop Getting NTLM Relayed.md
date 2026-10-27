@@ -104,7 +104,7 @@ Luckily, the MSSQL protocol supports Extended Protection for Authentication (EPA
 > *MSSQL server Force Encryption setting*
 
 > ![sql_2](../assets/img/ntlm/sql_2.png)
-> *MSSQL server Extended PRotection for Authentication setting*
+> *MSSQL server Extended Protection for Authentication setting*
 
 __Credit to subat0mik for these screenshots.__
 
