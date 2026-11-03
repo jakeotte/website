@@ -1,0 +1,12 @@
+# GitHub Pages publishes this repo with Jekyll. These are build inputs, not
+# pages: keep them off the live site so search engines only see the generated
+# HTML. (Without this, Pages also renders each posts/*.md into a duplicate
+# HTML copy of the post.)
+exclude:
+  - build.js
+  - package.json
+  - package-lock.json
+  - node_modules
+  - "posts/*.md"
+  - posts/index.json
+  - "*.docx"

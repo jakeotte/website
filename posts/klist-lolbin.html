@@ -5,22 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Abusing klist.exe for Kerberos Post-Exploitation – Jake Otte</title>
     <meta name="description" content="Running as SYSTEM, the klist.exe that ships with Windows will dump every logged-on user's TGT. I convert them to ccache and build a TGT harvester out of scheduled tasks." />
+    <meta name="author" content="Jake Otte" />
     <meta property="og:title" content="Abusing klist.exe for Kerberos Post-Exploitation – Jake Otte" />
     <meta property="og:description" content="Running as SYSTEM, the klist.exe that ships with Windows will dump every logged-on user's TGT. I convert them to ccache and build a TGT harvester out of scheduled tasks." />
     <meta property="og:type" content="article" />
     <meta property="og:url" content="https://jakeotte.com/posts/klist-lolbin.html" />
-    <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
+    <meta property="og:image" content="https://jakeotte.com/assets/og.png" />
     <meta property="og:site_name" content="Jake Otte" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="article:published_time" content="2026-03-10" />
+    <meta property="article:author" content="https://jakeotte.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Abusing klist.exe for Kerberos Post-Exploitation – Jake Otte" />
     <meta name="twitter:description" content="Running as SYSTEM, the klist.exe that ships with Windows will dump every logged-on user's TGT. I convert them to ccache and build a TGT harvester out of scheduled tasks." />
+    <meta name="twitter:image" content="https://jakeotte.com/assets/og.png" />
     <link rel="canonical" href="https://jakeotte.com/posts/klist-lolbin.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" />
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="../assets/img/favicons/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png" />
     <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#c9e3f6" />
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Abusing klist.exe for Kerberos Post-Exploitation",
+        "description": "Running as SYSTEM, the klist.exe that ships with Windows will dump every logged-on user's TGT. I convert them to ccache and build a TGT harvester out of scheduled tasks.",
+        "datePublished": "2026-03-10",
+        "dateModified": "2026-03-10",
+        "image": "https://jakeotte.com/assets/og.png",
+        "url": "https://jakeotte.com/posts/klist-lolbin.html",
+        "mainEntityOfPage": "https://jakeotte.com/posts/klist-lolbin.html",
+        "wordCount": 1646,
+        "author": {
+            "@type": "Person",
+            "name": "Jake Otte",
+            "url": "https://jakeotte.com/"
+        }
+    }
+    </script>
 </head>
 
 <body class="page">
@@ -28,11 +54,11 @@
     <a class="skip-link" href="#post-main">Skip to article</a>
     <header>
         <div class="header-top">
-            <a class="brand" href="../index.html">
+            <a class="brand" href="/">
                 <span class="brand-name">Jake Otte</span>
             </a>
             <nav class="nav">
-                <a href="../index.html">Home</a>
+                <a href="/">Home</a>
                 <a href="../about.html">About</a>
                 <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
             </nav>
@@ -41,7 +67,7 @@
 
     <main id="post-main">
         <div class="post-view-content">
-            <a href="../index.html#research" class="post-back-link">All posts</a>
+            <a href="/#research" class="post-back-link">All posts</a>
             <article class="post-article">
                 <header class="post-heading">
                     <h1>Abusing klist.exe for Kerberos Post-Exploitation</h1>
@@ -52,7 +78,7 @@
                     <p class="post-deck">Running as SYSTEM, the klist.exe that ships with Windows will dump every logged-on user's TGT. I convert them to ccache and build a TGT harvester out of scheduled tasks.</p>
                 </header>
                 <div class="post-body"><p>Microsoft Windows ships with the program <code>klist.exe</code>, found in <code>C:\Windows\System32</code>. Technology and security professionals may be most familiar with the program’s default, parameter-less behavior of listing Kerberos tickets loaded in the current logon session. However, this behavior is just the surface of <code>klist</code>’s capabilities.</p>
-<figure><img src="../assets/img/klist/help.png" alt="klist"><figcaption>The klist binary help menu.</figcaption></figure>
+<figure><picture><source srcset="../assets/img/klist/help.webp" type="image/webp"><img src="../assets/img/klist/help.png" alt="klist" width="1194" height="536" decoding="async"></picture><figcaption>The klist binary help menu.</figcaption></figure>
 <h2>Extracting TGTs</h2>
 <p><code>klist</code> supports a variety of functions through parameters, including <code>purge</code>,<code>get</code>,<code>sessions</code>, and <code>tgt</code>. The latter two are of great interest to red team operations, as they seem to suggest potential for enumeration and post-exploitation. Indeed, executing <code>klist sessions</code> as a high-integrity Administrator-level process returns a list of active logon sessions:</p>
 <pre><code>C:\Windows\System32&gt;klist sessions
@@ -96,9 +122,9 @@ EncodedTicket      : (size: 1162)
 0030  0a 4c 55 4d 4f 4e 2e 43:4f 4d a3 82 04 46 30 82  .LUMON.COM...F0.
 </code></pre>
 <p>Unfortunately for us, the TGT’s session key has been zeroed out, preventing us from using the hex dump directly as credential material. However, all is not lost - investigating the binary’s source in Ghidra reveals an interesting set of operations following argument parsing. The program opens a handle to the current process token and calls <code>RtlAdjustPrivilege</code> with a privilege <code>7</code>, aka <code>SeTcbPrivilege</code>. In the event of a permissions failure (<code>0xc0000061</code>), the program falls back to a privilege <code>0x14</code>, <code>SeImpersonatePrivilege</code>.</p>
-<figure><img src="../assets/img/klist/privs.png" alt="klist"><figcaption>Upgrading process privileges if possible.</figcaption></figure>
+<figure><picture><source srcset="../assets/img/klist/privs.webp" type="image/webp"><img src="../assets/img/klist/privs.png" alt="klist" width="1134" height="268" loading="lazy" decoding="async"></picture><figcaption>Upgrading process privileges if possible.</figcaption></figure>
 <p>Following execution further, we can identify the function responsible for interfacing with LSASS and “extracting” Kerberos tickets. Rather strangely, it seems that <code>klist.exe</code> dynamically imports and resolves <code>LsaCallAuthenticationPackage</code> at runtime (a LOLBIN with IAT camouflage to boot).</p>
-<figure><img src="../assets/img/klist/dynamic.png" alt="klist"><figcaption>Dynamically importing secur32.dll and resolving LsaCallAuthenticationPackage.</figcaption></figure>
+<figure><picture><source srcset="../assets/img/klist/dynamic.webp" type="image/webp"><img src="../assets/img/klist/dynamic.png" alt="klist" width="1340" height="168" loading="lazy" decoding="async"></picture><figcaption>Dynamically importing secur32.dll and resolving LsaCallAuthenticationPackage.</figcaption></figure>
 <p>This call explains why the original <code>klist tgt</code> execution included a nulled session key; LSASS will scrub the session key for any requesting processes lacking <code>SeTcbPrivilege</code>.</p>
 <p>With some insight into the API calls behind <code>klist</code>, we can execute <code>klist tgt</code> as <code>NT AUTHORITY\SYSTEM</code> with <code>SeTcbPrivilege</code>. Doing so provides the full hex dump and uncensored session key for our machine account:</p>
 <pre><code>C:\Windows\System32&gt;klist tgt
@@ -228,7 +254,7 @@ From a defensive standpoint, the obvious detection opportunity is <code>klist.ex
         <div class="footer-inner">
             <div class="footer-left">
                 <div class="footer-nav">
-                    <a href="../index.html">Home</a>
+                    <a href="/">Home</a>
                     <a href="../about.html">About</a>
                     <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
                     <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>

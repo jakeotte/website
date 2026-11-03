@@ -5,22 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Extending Wazuh with Sysmon and LDAP – Jake Otte</title>
     <meta name="description" content="Domain controllers don't log LDAP queries by default. I turned that on, wrote Wazuh rules for suspicious queries alongside Sysmon, and caught my own BloodHound run." />
+    <meta name="author" content="Jake Otte" />
     <meta property="og:title" content="Extending Wazuh with Sysmon and LDAP – Jake Otte" />
     <meta property="og:description" content="Domain controllers don't log LDAP queries by default. I turned that on, wrote Wazuh rules for suspicious queries alongside Sysmon, and caught my own BloodHound run." />
     <meta property="og:type" content="article" />
     <meta property="og:url" content="https://jakeotte.com/posts/wazuh-sysmon-ldap.html" />
-    <meta property="og:image" content="https://jakeotte.com/assets/square.jpg" />
+    <meta property="og:image" content="https://jakeotte.com/assets/og.png" />
     <meta property="og:site_name" content="Jake Otte" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="article:published_time" content="2025-04-25" />
+    <meta property="article:author" content="https://jakeotte.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Extending Wazuh with Sysmon and LDAP – Jake Otte" />
     <meta name="twitter:description" content="Domain controllers don't log LDAP queries by default. I turned that on, wrote Wazuh rules for suspicious queries alongside Sysmon, and caught my own BloodHound run." />
+    <meta name="twitter:image" content="https://jakeotte.com/assets/og.png" />
     <link rel="canonical" href="https://jakeotte.com/posts/wazuh-sysmon-ldap.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" />
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="../assets/img/favicons/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png" />
     <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#c9e3f6" />
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Extending Wazuh with Sysmon and LDAP",
+        "description": "Domain controllers don't log LDAP queries by default. I turned that on, wrote Wazuh rules for suspicious queries alongside Sysmon, and caught my own BloodHound run.",
+        "datePublished": "2025-04-25",
+        "dateModified": "2025-04-25",
+        "image": "https://jakeotte.com/assets/og.png",
+        "url": "https://jakeotte.com/posts/wazuh-sysmon-ldap.html",
+        "mainEntityOfPage": "https://jakeotte.com/posts/wazuh-sysmon-ldap.html",
+        "wordCount": 1271,
+        "author": {
+            "@type": "Person",
+            "name": "Jake Otte",
+            "url": "https://jakeotte.com/"
+        }
+    }
+    </script>
 </head>
 
 <body class="page">
@@ -28,11 +54,11 @@
     <a class="skip-link" href="#post-main">Skip to article</a>
     <header>
         <div class="header-top">
-            <a class="brand" href="../index.html">
+            <a class="brand" href="/">
                 <span class="brand-name">Jake Otte</span>
             </a>
             <nav class="nav">
-                <a href="../index.html">Home</a>
+                <a href="/">Home</a>
                 <a href="../about.html">About</a>
                 <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
             </nav>
@@ -41,7 +67,7 @@
 
     <main id="post-main">
         <div class="post-view-content">
-            <a href="../index.html#research" class="post-back-link">All posts</a>
+            <a href="/#research" class="post-back-link">All posts</a>
             <article class="post-article">
                 <header class="post-heading">
                     <h1>Extending Wazuh with Sysmon and LDAP</h1>
@@ -51,7 +77,7 @@
                     </div>
                     <p class="post-deck">Domain controllers don't log LDAP queries by default. I turned that on, wrote Wazuh rules for suspicious queries alongside Sysmon, and caught my own BloodHound run.</p>
                 </header>
-                <div class="post-body"><p><img src="../assets/img/wazuh/wazuh.jpg" alt="Wazuh Dashboard">
+                <div class="post-body"><p><picture><source srcset="../assets/img/wazuh/wazuh.webp" type="image/webp"><img src="../assets/img/wazuh/wazuh.jpg" alt="Wazuh Dashboard" width="1600" height="900" decoding="async"></picture>
 <em>Wazuh SIEM Dashboard</em></p>
 <h2>Wazuh</h2>
 <p>Wazuh is an open-source SIEM platform that enables defenders to implement logging and detection infrastructure at no cost. The project is an incredible accomplishment and is continuously being updated with new features, bug fixes, and
@@ -117,7 +143,7 @@ HKLM:\SYSTEM\CurrentControlSet\Services\NTDS\Parameters -&gt; Search Time Thresh
 </code></pre>
 <p>Enabling these registry changes will allow for the logging of Event ID 1644 under the Directory Service event channel. Event 1644 isn’t really supposed to be used just for logging queries - it is meant to log queries that are overly expensive
 and may be slowing down AD processing times. However, we can force the event to trigger for ALL LDAP queries by lowering the thresholds of each metric to the minimum (1). After changing the registry values, you should start to see 1644s flow in.</p>
-<p><img src="../assets/img/wazuh/1644.gif" alt="1644"></p>
+<p><img src="../assets/img/wazuh/1644.gif" alt="1644" width="624" height="593" loading="lazy" decoding="async"></p>
 <h2>LDAP and Wazuh</h2>
 <p>As before, Wazuh does not ingest the <code>Directory Service</code> event channel by default. We can again either edit the <code>ossec.conf</code> file or use Groups to add the lines:</p>
 <pre><code class="language-xml">&lt;localfile&gt;
@@ -181,7 +207,7 @@ made from compromised user sessions - typically through a phishing payload:</p>
         <div class="footer-inner">
             <div class="footer-left">
                 <div class="footer-nav">
-                    <a href="../index.html">Home</a>
+                    <a href="/">Home</a>
                     <a href="../about.html">About</a>
                     <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
                     <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>

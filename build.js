@@ -3,6 +3,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 const MarkdownIt = require('markdown-it');
 
 const md = new MarkdownIt({ html: false, linkify: true, typographer: true });
@@ -52,6 +53,88 @@ function formatFigures(html) {
         );
 }
 
+// ── Images ────────────────────────────────────────────────────────────────────
+// Read pixel dimensions from the file header so the browser can reserve space
+// before the image loads (no layout shift). Supports PNG, JPEG, and GIF.
+function imageSize(file) {
+    const b = fs.readFileSync(file);
+    if (b.length > 24 && b.readUInt32BE(0) === 0x89504e47) {
+        return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+    }
+    if (b.length > 10 && b.toString('ascii', 0, 3) === 'GIF') {
+        return { w: b.readUInt16LE(6), h: b.readUInt16LE(8) };
+    }
+    if (b[0] === 0xff && b[1] === 0xd8) {
+        let i = 2;
+        while (i + 9 < b.length) {
+            if (b[i] !== 0xff) { i++; continue; }
+            const marker = b[i + 1];
+            const len = b.readUInt16BE(i + 2);
+            // SOF0–SOF15, excluding DHT (C4), JPG (C8), DAC (CC)
+            if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
+                return { w: b.readUInt16BE(i + 7), h: b.readUInt16BE(i + 5) };
+            }
+            i += 2 + len;
+        }
+    }
+    return null;
+}
+
+let cwebpAvailable = null;
+function hasCwebp() {
+    if (cwebpAvailable === null) {
+        try { execFileSync('cwebp', ['-version'], { stdio: 'ignore' }); cwebpAvailable = true; }
+        catch { cwebpAvailable = false; console.warn('  cwebp not found: skipping WebP generation (brew install webp)'); }
+    }
+    return cwebpAvailable;
+}
+
+// Create a WebP copy next to a PNG/JPEG if it's missing or older than the source.
+// The original stays as the fallback and as the social preview image.
+function ensureWebp(file) {
+    if (!/\.(png|jpe?g)$/i.test(file)) return null;
+    const out = file.replace(/\.(png|jpe?g)$/i, '.webp');
+    const fresh = fs.existsSync(out) && fs.statSync(out).mtimeMs >= fs.statSync(file).mtimeMs;
+    if (!fresh) {
+        if (!hasCwebp()) return null;
+        execFileSync('cwebp', ['-quiet', '-q', '82', '-m', '6', '-sharp_yuv', file, '-o', out]);
+    }
+    // Only use the WebP when it actually saves bytes.
+    return fs.statSync(out).size < fs.statSync(file).size ? out : null;
+}
+
+// Add dimensions, lazy loading (all but the first image), and a WebP source.
+function optimizeImages(html, baseDir) {
+    let count = 0;
+    return html.replace(/<img\b([^>]*?)\s*\/?>/g, (tag, attrs) => {
+        const srcMatch = attrs.match(/\ssrc="([^"]+)"/);
+        if (!srcMatch || /^https?:/i.test(srcMatch[1])) return tag;
+        const src  = srcMatch[1];
+        const file = path.join(baseDir, decodeURIComponent(src));
+        if (!fs.existsSync(file)) { console.warn(`  missing image: ${src}`); return tag; }
+
+        const size = imageSize(file);
+        const loading = count++ === 0 ? '' : ' loading="lazy"';
+        const dims = size ? ` width="${size.w}" height="${size.h}"` : '';
+        const img = `<img${attrs}${dims}${loading} decoding="async">`;
+
+        const webp = ensureWebp(file);
+        if (!webp) return img;
+        const webpSrc = src.replace(/\.(png|jpe?g)$/i, '.webp');
+        return `<picture><source srcset="${webpSrc}" type="image/webp">${img}</picture>`;
+    });
+}
+
+const FONT_LINKS = `<link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" />`;
+
+// JSON for a <script type="application/ld+json"> block. Escape "<" so post
+// text can never close the script tag.
+function jsonLd(obj) {
+    return JSON.stringify(obj, null, 4).replace(/</g, '\\u003c').replace(/\n/g, '\n    ');
+}
+
 // ── Generate post pages ────────────────────────────────────────────────────────
 
 posts.forEach((post, idx) => {
@@ -60,7 +143,7 @@ posts.forEach((post, idx) => {
     if (!fs.existsSync(mdPath)) { console.warn(`SKIP (not found): ${post.file}`); return; }
 
     const markdown  = fs.readFileSync(mdPath, 'utf-8');
-    const bodyHtml  = formatFigures(md.render(markdown));
+    const bodyHtml  = optimizeImages(formatFigures(md.render(markdown)), POSTS_DIR);
     const words     = markdown.split(/\s+/).length;
     const mins      = Math.max(1, Math.round(words / 200));
 
@@ -85,7 +168,21 @@ posts.forEach((post, idx) => {
     const desc    = esc(post.summary || '');
     const title   = esc(post.title);
     const pageUrl = `https://jakeotte.com/posts/${post.slug}.html`;
-    const ogImage = `https://jakeotte.com/${post.image || 'assets/square.jpg'}`;
+    const ogImage = `https://jakeotte.com/${post.image || 'assets/og.png'}`;
+
+    const articleLd = jsonLd({
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: post.title,
+        description: post.summary || '',
+        datePublished: post.date,
+        dateModified: post.updated || post.date,
+        image: ogImage,
+        url: pageUrl,
+        mainEntityOfPage: pageUrl,
+        wordCount: words,
+        author: { '@type': 'Person', name: 'Jake Otte', url: 'https://jakeotte.com/' },
+    });
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -94,22 +191,30 @@ posts.forEach((post, idx) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${title} – Jake Otte</title>
     <meta name="description" content="${desc}" />
+    <meta name="author" content="Jake Otte" />
     <meta property="og:title" content="${title} – Jake Otte" />
     <meta property="og:description" content="${desc}" />
     <meta property="og:type" content="article" />
     <meta property="og:url" content="${pageUrl}" />
     <meta property="og:image" content="${ogImage}" />
     <meta property="og:site_name" content="Jake Otte" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="article:published_time" content="${post.date}" />
+    <meta property="article:author" content="https://jakeotte.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${title} – Jake Otte" />
     <meta name="twitter:description" content="${desc}" />
+    <meta name="twitter:image" content="${ogImage}" />
     <link rel="canonical" href="${pageUrl}" />
+    ${FONT_LINKS}
     <link rel="stylesheet" href="../style.css" />
     <link rel="icon" href="../assets/img/favicons/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png" />
     <link rel="mask-icon" href="../assets/img/favicons/safari-pinned-tab.svg" color="#c9e3f6" />
+    <script type="application/ld+json">
+    ${articleLd}
+    </script>
 </head>
 
 <body class="page">
@@ -117,11 +222,11 @@ posts.forEach((post, idx) => {
     <a class="skip-link" href="#post-main">Skip to article</a>
     <header>
         <div class="header-top">
-            <a class="brand" href="../index.html">
+            <a class="brand" href="/">
                 <span class="brand-name">Jake Otte</span>
             </a>
             <nav class="nav">
-                <a href="../index.html">Home</a>
+                <a href="/">Home</a>
                 <a href="../about.html">About</a>
                 <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes <span aria-hidden="true">↗</span></a>
             </nav>
@@ -130,7 +235,7 @@ posts.forEach((post, idx) => {
 
     <main id="post-main">
         <div class="post-view-content">
-            <a href="../index.html#research" class="post-back-link">All posts</a>
+            <a href="/#research" class="post-back-link">All posts</a>
             <article class="post-article">
                 <header class="post-heading">
                     <h1>${title}</h1>
@@ -150,7 +255,7 @@ posts.forEach((post, idx) => {
         <div class="footer-inner">
             <div class="footer-left">
                 <div class="footer-nav">
-                    <a href="../index.html">Home</a>
+                    <a href="/">Home</a>
                     <a href="../about.html">About</a>
                     <a href="https://jotter.gitbook.io/red-team/" target="_blank" rel="noopener noreferrer">Notes</a>
                     <a href="https://github.com/jakeotte" target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -228,10 +333,11 @@ console.log('  index.html');
 const SITE = 'https://jakeotte.com';
 const today = new Date().toISOString().slice(0, 10);
 
+// contact.html is intentionally unlinked (contact details live in the sidebar)
+// and marked noindex, so it stays out of the sitemap.
 const staticUrls = [
     { loc: `${SITE}/`,             lastmod: today },
     { loc: `${SITE}/about.html`,   lastmod: today },
-    { loc: `${SITE}/contact.html`, lastmod: today },
 ];
 const postUrls = posts.filter(post => !post.external).map(post => ({
     loc: `${SITE}/posts/${post.slug}.html`,
