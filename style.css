@@ -179,17 +179,19 @@ main.home-shell {
 
 .sidebar-identity {
   display: flex;
-  align-items: center;
-  gap: 0.85rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 
 .sidebar-avatar {
-  width: 58px;
-  height: 58px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
   object-fit: cover;
-  border: 1px solid var(--border-strong);
-  filter: contrast(1.02);
+  object-position: 50% 18%;
+  border: 1px solid var(--border-subtle);
   margin: 0;
   display: block;
 }
@@ -989,8 +991,8 @@ footer {
     padding: 0 0 1.25rem;
     border-bottom: 1px solid var(--border-subtle);
   }
-  .sidebar-avatar { width: 52px; height: 52px; margin: 0; }
-  .sidebar-identity { margin: 0; }
+  .sidebar-identity { flex-direction: row; align-items: center; gap: 0.9rem; margin: 0; }
+  .sidebar-avatar { width: 72px; height: 72px; aspect-ratio: 1; object-position: 50% 30%; object-view-box: inset(6% 20% 34% 20%); flex-shrink: 0; }
   .sidebar-certs { flex-basis: 100%; margin: 0; }
   .sidebar-bio { border-top: none; padding-top: 0; }
   .sidebar-bio, .sidebar-contact { display: none; }
